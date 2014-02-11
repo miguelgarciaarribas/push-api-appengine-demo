@@ -15,6 +15,11 @@ threadsafe: yes
 # Handlers define how to route requests to your application.
 handlers:
 
+# Interative python console for admins only.
+- url: /admin/.*
+  script: google.appengine.ext.admin.application
+  login: admin
+
 # App Engine serves and caches static files contained in the listed directories
 # (and subdirectories). Uncomment and set the directory as needed.
 #- url: /client
