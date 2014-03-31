@@ -9,34 +9,31 @@ from google.appengine.ext import ndb
 
 # TODO: Have the user provide this, and store it in the datastore
 # rather than hardcoding it.
-GCM_API_KEY = "INSERT_API_KEY"
+GCM_API_KEY = 'INSERT_API_KEY'
 
 # TODO: Probably cheaper to have a singleton entity with a repeated property?
 class Registration(ndb.Model):
-    username = ndb.StringProperty()  # Optional
     gcm_registration_id = ndb.StringProperty()
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
 
-@get('/chat')
-def login():
-    """Users always start at the login page."""
-    return template('login')
+@get('/stock')
+def stock():
+    """Single page stock app. Displays stock data and lets users register."""
+    return template('stock')
 
-@post('/chat')
+@post('/stock/register')
 def register():
-    """Receive username and GCM registration ID, and serve chat application."""
+    """XHR adding a registration ID to our list."""
     if request.forms.registration_id:
         if (request.forms.endpoint != 'https://android.googleapis.com/gcm/send')
             abort(500, "Push servers other than GCM are not yet supported.")
         registration = Registration(
-            username=request.forms.username,
             gcm_registration_id=request.forms.registration_id)
         registration.put()
-    return template('chat',
-                    username=request.forms.username,
-                    registered=bool(request.forms.registration_id));
+    response.status = 201
+    return ""
 
-@post('/chat/send')
+@post('/stock/trigger-drop')
 def send():
     """XHR requesting that we send a push message to all users."""
     endpoint = 'https://android.googleapis.com/gcm/send'
@@ -48,7 +45,7 @@ def send():
     post_data = json.dumps({
         'registration_ids': registration_ids,
         'data': {
-            'data': request.forms.msg,
+            'data': '["May", 183]',  #request.forms.msg,
         },
         #"collapse_key": "score_update",
         #"time_to_live": 108,
