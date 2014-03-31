@@ -7,6 +7,8 @@ from bottle import get, post, abort, template, request, response
 from google.appengine.api import urlfetch
 from google.appengine.ext import ndb
 
+GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send'
+
 # TODO: Have the user provide this, and store it in the datastore
 # rather than hardcoding it.
 GCM_API_KEY = 'INSERT_API_KEY'
@@ -25,7 +27,7 @@ def stock():
 def register():
     """XHR adding a registration ID to our list."""
     if request.forms.registration_id:
-        if (request.forms.endpoint != 'https://android.googleapis.com/gcm/send')
+        if request.forms.endpoint != GCM_ENDPOINT:
             abort(500, "Push servers other than GCM are not yet supported.")
         registration = Registration(
             gcm_registration_id=request.forms.registration_id)
@@ -36,7 +38,6 @@ def register():
 @post('/stock/trigger-drop')
 def send():
     """XHR requesting that we send a push message to all users."""
-    endpoint = 'https://android.googleapis.com/gcm/send'
     # TODO: Should limit batches to 1000 registration_ids at a time.
     registration_ids = [r.gcm_registration_id
                         for r in Registration.query().iter()]
@@ -51,7 +52,7 @@ def send():
         #"time_to_live": 108,
         #"delay_while_idle": true,
     })
-    result = urlfetch.fetch(url=url,
+    result = urlfetch.fetch(url=GCM_ENDPOINT,
                             payload=post_data,
                             method=urlfetch.POST,
                             headers={
@@ -61,7 +62,7 @@ def send():
     if result.status_code != 200:
         abort(500, "Sending failed (status code %d)." % result.status_code)
     #return "%d message(s) sent successfully." % len(registration_ids)
-    response.status = 201
+    response.status = 202
     return ""
 
 bottle.run(server='gae', debug=True)
