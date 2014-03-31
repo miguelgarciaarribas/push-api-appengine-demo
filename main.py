@@ -13,19 +13,33 @@ GCM_API_KEY = "INSERT_API_KEY"
 
 # TODO: Probably cheaper to have a singleton entity with a repeated property?
 class Registration(ndb.Model):
+    username = ndb.StringProperty()  # Optional
     gcm_registration_id = ndb.StringProperty()
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
 
-# Define an handler for the root URL of our application.
-@get('/')
-def index():
-    """Show form allowing user to send push messages."""
-    return input_form()
+@get('/chat')
+def login():
+    """Users always start at the login page."""
+    return template('login')
 
-@post('/')
+@post('/chat')
+def register():
+    """Receive username and GCM registration ID, and serve chat application."""
+    if request.forms.registration_id:
+        if (request.forms.endpoint != 'https://android.googleapis.com/gcm/send')
+            abort(500, "Push servers other than GCM are not yet supported.")
+        registration = Registration(
+            username=request.forms.username,
+            gcm_registration_id=request.forms.registration_id)
+        registration.put()
+    return template('chat',
+                    username=request.forms.username,
+                    registered=bool(request.forms.registration_id));
+
+@post('/chat/send')
 def send():
-    """User asked us to send push messages."""
-    url = "https://android.googleapis.com/gcm/send"
+    """XHR requesting that we send a push message to all users."""
+    endpoint = 'https://android.googleapis.com/gcm/send'
     # TODO: Should limit batches to 1000 registration_ids at a time.
     registration_ids = [r.gcm_registration_id
                         for r in Registration.query().iter()]
@@ -49,32 +63,7 @@ def send():
                             })
     if result.status_code != 200:
         abort(500, "Sending failed (status code %d)." % result.status_code)
-    return input_form("%d message(s) sent successfully."
-                      % len(registration_ids))
-
-def input_form(status_html=""):
-    count = Registration.query().count()
-    return template("""
-        <!doctype html>
-        <html><head>
-            <title>Push message sender</title>
-        </head><body>
-            <em>{{status}}</em>
-            <form action="/" method="post">
-                <h3>Send message to {{count}} registered ids.</h3>
-                <input type="text" name="msg"><button type="submit">Send</button>
-            </form>
-        </body></html>
-    """, status=status_html, count=count)
-
-@post('/register')
-def register():
-    """A device is registering to receive messages."""
-    if not request.forms.registration_id:
-        abort(400, "Invalid registration id.")
-    registration = Registration(
-        gcm_registration_id=request.forms.registration_id)
-    registration.put()
+    #return "%d message(s) sent successfully." % len(registration_ids)
     response.status = 201
     return ""
 
