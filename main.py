@@ -15,7 +15,6 @@ GCM_API_KEY = 'INSERT_API_KEY'
 
 # TODO: Probably cheaper to have a singleton entity with a repeated property?
 class Registration(ndb.Model):
-    gcm_registration_id = ndb.StringProperty()
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
 
 @get('/stock')
@@ -23,14 +22,19 @@ def stock():
     """Single page stock app. Displays stock data and lets users register."""
     return template('stock')
 
+@get('/stock/drop')
+def stock_drop():
+    """Lets "admins" trigger stock price drops."""
+    return template('stock_drop')
+
 @post('/stock/register')
 def register():
     """XHR adding a registration ID to our list."""
     if request.forms.registration_id:
         if request.forms.endpoint != GCM_ENDPOINT:
             abort(500, "Push servers other than GCM are not yet supported.")
-        registration = Registration(
-            gcm_registration_id=request.forms.registration_id)
+
+        registration = Registration.get_or_insert(request.forms.registration_id)
         registration.put()
     response.status = 201
     return ""
@@ -39,8 +43,7 @@ def register():
 def send():
     """XHR requesting that we send a push message to all users."""
     # TODO: Should limit batches to 1000 registration_ids at a time.
-    registration_ids = [r.gcm_registration_id
-                        for r in Registration.query().iter()]
+    registration_ids = [r.key.string_id() for r in Registration.query().iter()]
     if not registration_ids:
         abort(500, "No registered devices.")
     post_data = json.dumps({

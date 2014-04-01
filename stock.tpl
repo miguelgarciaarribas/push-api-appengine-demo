@@ -5,8 +5,6 @@
     <style>
         body {
             margin: 5vmin;
-            /*display: flex;
-            flex-direction: column;*/
         }
         #chart {
             margin-left: -5vmin;
@@ -14,14 +12,6 @@
             width: 100vmin;
             height: 60vmin;
         }
-        /*#login {
-            flex: auto;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-self: center;
-            align-items: flex-start;
-        }*/
         .success {
             color: green;
             font-style: italic;
@@ -49,7 +39,7 @@
             if (!text)
                 return;
             result.className = className;
-            if (buttonName == 'register')
+            if (buttonName == 'register' && className == 'fail')
                 $('#register-button').disabled = false;
             console.log(buttonName + " " + className + ": " + text);
         }
@@ -147,6 +137,7 @@
             });
 
             notification.onclick = function() {
+                notification.close();
                 console.log("Notification clicked.");
                 window.focus();
             }
