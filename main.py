@@ -22,10 +22,10 @@ def stock():
     """Single page stock app. Displays stock data and lets users register."""
     return template('stock')
 
-@get('/stock/drop')
-def stock_drop():
+@get('/stock/admin')
+def stock_admin():
     """Lets "admins" trigger stock price drops."""
-    return template('stock_drop')
+    return template('stock_admin')
 
 @post('/stock/register')
 def register():

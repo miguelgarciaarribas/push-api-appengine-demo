@@ -5,6 +5,7 @@
     <style>
         body {
             margin: 5vmin;
+            font-family: sans-serif;
         }
         #chart {
             margin-left: -5vmin;
@@ -21,14 +22,10 @@
             font-style: italic;
             font-weight: bold;
         }
-        #drop-button {
-            margin-top: 1em;
-        }
     </style>
 </head><body>
     <div id="chart"></div>
     <button id="register-button">Register for price alerts</button><span id="register-result"></span><br>
-    <label>DEMO ONLY: <button id="drop-button">Trigger price drop</button><span id="drop-result"></span></label>
     <script src="https://www.google.com/jsapi"></script>
     <script>
         var $ = document.querySelector.bind(document);
@@ -142,26 +139,6 @@
                 window.focus();
             }
         }
-
-        $('#drop-button').addEventListener('click', function() {
-            console.log("Sending price drop to johnme-gcm.appspot.com...");
-            setStatus('drop', '', "");
-
-            var xhr = new XMLHttpRequest();
-            xhr.onload = function() {
-                if (('' + xhr.status)[0] != '2') {
-                    setStatus('drop', 'fail', "Server error " + xhr.status
-                                              + ": " + xhr.statusText);
-                } else {
-                    setStatus('drop', 'success', "Triggered.");
-                }
-            };
-            xhr.onerror = xhr.onabort = function() {
-                setStatus('drop', 'fail', "Failed to send!");
-            };
-            xhr.open('POST', '/stock/trigger-drop');
-            xhr.send();
-        }, false);
     </script>
 
 </body></html>
