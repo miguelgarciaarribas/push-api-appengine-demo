@@ -79,6 +79,8 @@
 
         $('#register-button').addEventListener('click', function() {
             $('#register-button').disabled = true;
+            setStatus('register', '', "");
+
             Notification.requestPermission(function(permission) {
                 if (permission != 'granted') {
                     setStatus('register', 'fail', 'Permission denied!');
@@ -97,7 +99,6 @@
 
         function sendRegistrationToBackend(endpoint, registrationId) {
             console.log("Sending registration to johnme-gcm.appspot.com...");
-            setStatus('register', '', "");
 
             var formData = new FormData();
             formData.append('endpoint',
