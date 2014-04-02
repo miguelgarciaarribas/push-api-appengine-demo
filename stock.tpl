@@ -101,8 +101,7 @@
             console.log("Sending registration to johnme-gcm.appspot.com...");
 
             var formData = new FormData();
-            formData.append('endpoint',
-                            'https://android.googleapis.com/gcm/send');
+            formData.append('endpoint', endpoint);
             formData.append('registration_id', registrationId);
 
             var xhr = new XMLHttpRequest();

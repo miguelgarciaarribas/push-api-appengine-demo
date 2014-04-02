@@ -31,6 +31,11 @@ def stock_admin():
     """Lets "admins" trigger stock price drops."""
     return template('stock_admin')
 
+@get('/chat')
+def chat():
+    """Single page chat app."""
+    return template('chat')
+
 @post('/stock/register')
 def register_stock():
     return register(TYPE_STOCK)
@@ -52,7 +57,14 @@ def register(type):
     return ""
 
 @post('/stock/trigger-drop')
-def send():
+def send_stock():
+    return send(TYPE_STOCK, '["May", 183]')
+
+@post('/chat/send')
+def send_chat():
+    return send(TYPE_CHAT, request.forms.message)
+
+def send(type, data):
     """XHR requesting that we send a push message to all users."""
     # TODO: Should limit batches to 1000 registration_ids at a time.
     registration_ids = [r.key.string_id() for r in Registration.query(
@@ -62,7 +74,7 @@ def send():
     post_data = json.dumps({
         'registration_ids': registration_ids,
         'data': {
-            'data': '["May", 183]',  #request.forms.msg,
+            'data': data,  #request.forms.msg,
         },
         #"collapse_key": "score_update",
         #"time_to_live": 108,
