@@ -24,6 +24,7 @@
         }
     </style>
 </head><body>
+    See also <a href="/chat">chat app</a>.
     <div id="chart"></div>
     <button id="register-button">Register for price alerts</button><span id="register-result"></span><br>
     <script src="https://www.google.com/jsapi"></script>
@@ -124,7 +125,10 @@
 
         function onPush(evt) {
             console.log(evt);
-            var mayData = JSON.parse(evt.data);
+            var data = evt.data;
+            if (!/^stock /.test(data))
+                return;
+            var mayData = JSON.parse(data.substring('stock '.length));
             drawChart(mayData);
 
             var notification = new Notification("Stock price dropped", {
