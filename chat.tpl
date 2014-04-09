@@ -4,11 +4,8 @@
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <style>
         #login-page {
-            transition: height 1s;
-        }
-        #chat-page {
-            transition: opacity 1s;
-            opacity: 0.001;
+            position: fixed;
+            top: 0; right: 0; bottom: 0; left: 0;
         }
         .success {
             color: green;
@@ -21,7 +18,6 @@
         }
     </style>
 </head><body>
-    See also <a href="/stock">stocks app</a>.
     <section id="login-page">
         <label>Username: <input type="text" id="username"></label><br>
         <button id="join-button">Join chatroom</button><span id="join-result"></span>
@@ -49,6 +45,11 @@
             setStatus('join', 'fail',
                       "Your browser does not support push notifications.");
             $('#join-button').disabled = true;
+        }
+
+        google.load('visualization', '1', {packages:['corechart']});
+        google.setOnLoadCallback(drawChart);
+        function drawChart(mayData) {
         }
 
         $('#join-button').addEventListener('click', function() {
@@ -85,7 +86,7 @@
                 } else {
                     setStatus('join', 'success', "Registered.");
                     navigator.push.addEventListener("push", onPush, false);
-                    switchToChatPage();
+                    $('#login-page').style.display = 'none';
                 }
                 
             };
@@ -96,29 +97,13 @@
             xhr.send(formData);
         }
 
-        function switchToChatPage() {
-            var lp = $('#login-page');
-            var cp = $('#chat-page');
-            lp.style.height = lp.getBoundingClientRect().height + 'px';
-            lp.style.overflow = 'hidden';
-            lp.clientHeight /* force layout */;
-            setTimeout(function() {
-                // Start transition
-                lp.style.height = '0';
-                cp.style.opacity = '1';
-            }, 0);
-        }
-
         function onPush(evt) {
             console.log(evt);
-            var data = evt.data;
-            if (!/^chat /.test(data))
-                return;
-            var usernameAndMessage = data.substring('chat '.length);
+            var usernameAndMessage = evt.data;
             $('#incoming-messages').textContent += "\n" + usernameAndMessage;
 
-            var splits = usernameAndMessage.split(/> (.*)/);
-            var username = splits[0].substring(1); // substring(1) removes "<"
+            var splits = usernameAndMessage.split(/: (.*)/);
+            var username = splits[0];
             var message = splits[1];
 
             var notification = new Notification("Chat from " + username, {
@@ -140,7 +125,7 @@
 
             var formData = new FormData();
             formData.append('message',
-                "<" + $('#username').value + "> " + $('#message').value);
+                $('#username').value + ": " + $('#message').value);
 
             var xhr = new XMLHttpRequest();
             xhr.onload = function() {
@@ -148,7 +133,7 @@
                     setStatus('send', 'fail', "Server error " + xhr.status
                                               + ": " + xhr.statusText);
                 } else {
-                    setStatus('send', 'success', "Sent.");
+                    setStatus('send', 'success', "Triggered.");
                 }
             };
             xhr.onerror = xhr.onabort = function() {
@@ -156,8 +141,6 @@
             };
             xhr.open('POST', '/chat/send');
             xhr.send(formData);
-
-            $('#message').value = "";
         }, false);
     </script>
 

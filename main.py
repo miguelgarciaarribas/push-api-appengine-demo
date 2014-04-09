@@ -18,7 +18,6 @@ TYPE_CHAT = 2
 
 # TODO: Probably cheaper to have a singleton entity with a repeated property?
 class Registration(ndb.Model):
-    registration_id = ndb.StringProperty(required=True)
     type = ndb.IntegerProperty(required=True, choices=[TYPE_STOCK, TYPE_CHAT])
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
 
@@ -51,11 +50,8 @@ def register(type):
         if request.forms.endpoint != GCM_ENDPOINT:
             abort(500, "Push servers other than GCM are not yet supported.")
 
-        unique_id = str(type) + request.forms.registration_id
-        registration = Registration.get_or_insert(
-            unique_id,
-            registration_id=request.forms.registration_id,
-            type=type)
+        registration = Registration.get_or_insert(request.forms.registration_id,
+                                                  type=type)
         registration.put()
     response.status = 201
     return ""
@@ -71,15 +67,14 @@ def send_chat():
 def send(type, data):
     """XHR requesting that we send a push message to all users."""
     # TODO: Should limit batches to 1000 registration_ids at a time.
-    registration_ids = [r.registration_id for r in Registration.query(
-                        Registration.type == type).iter()]
+    registration_ids = [r.key.string_id() for r in Registration.query(
+                        Registration.type == TYPE_STOCK).iter()]
     if not registration_ids:
         abort(500, "No registered devices.")
-    type_str = 'stock' if type == TYPE_STOCK else 'chat'
     post_data = json.dumps({
         'registration_ids': registration_ids,
         'data': {
-            'data': type_str + ' ' + data,
+            'data': data,  #request.forms.msg,
         },
         #"collapse_key": "score_update",
         #"time_to_live": 108,
