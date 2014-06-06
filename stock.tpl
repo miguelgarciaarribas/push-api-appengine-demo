@@ -41,7 +41,7 @@
             console.log(buttonName + " " + className + ": " + text);
         }
 
-        if (!('push' in navigator) || !('Notification' in window)) {
+        if (!('push' in navigator) /*|| !('Notification' in window)*/) {
             setStatus('register', 'fail',
                       "Your browser does not support push notifications.");
             $('#register-button').disabled = true;
@@ -81,7 +81,7 @@
             $('#register-button').disabled = true;
             setStatus('register', '', "");
 
-            Notification.requestPermission(function(permission) {
+            function permissionCallback(permission) {
                 if (permission != 'granted') {
                     setStatus('register', 'fail', 'Permission denied!');
                 } else {
@@ -94,7 +94,11 @@
                         setStatus('register', 'fail', "API call unsuccessful!");
                     });
                 }
-            });
+            }
+            if ('Notification' in window)
+                Notification.requestPermission(permissionCallback);
+            else
+                permissionCallback('granted'); // TODO: Temporary hack
         }, false);
 
         function sendRegistrationToBackend(endpoint, registrationId) {
