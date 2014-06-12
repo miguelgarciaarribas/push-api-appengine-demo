@@ -1,6 +1,6 @@
 <!doctype html>
 <html><head>
-    <title>Stocks App (non SW)</title>
+    <title>Stocks App (SW)</title>
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <style>
         body {
@@ -41,7 +41,7 @@
             console.log(buttonName + " " + className + ": " + text);
         }
 
-        if (!('push' in navigator) /*|| !('Notification' in window)*/) {
+        if (!('push' in navigator)) {
             setStatus('register', 'fail',
                       "Your browser does not support push notifications.");
             $('#register-button').disabled = true;
@@ -81,24 +81,14 @@
             $('#register-button').disabled = true;
             setStatus('register', '', "");
 
-            function permissionCallback(permission) {
-                if (permission != 'granted') {
-                    setStatus('register', 'fail', 'Permission denied!');
-                } else {
-                    var SENDER_ID = 'INSERT_SENDER_ID';
-                    navigator.push.register(SENDER_ID).then(function(pr) {
-                        console.log(pr);
-                        sendRegistrationToBackend(pr.pushEndpoint,
-                                                  pr.pushRegistrationId);
-                    }, function() {
-                        setStatus('register', 'fail', "API call unsuccessful!");
-                    });
-                }
-            }
-            if ('Notification' in window)
-                Notification.requestPermission(permissionCallback);
-            else
-                permissionCallback('granted'); // TODO: Temporary hack
+            var SENDER_ID = 'INSERT_SENDER_ID';
+            navigator.push.register(SENDER_ID).then(function(pr) {
+                console.log(JSON.stringify(pr));
+                sendRegistrationToBackend(pr.pushEndpoint,
+                                          pr.pushRegistrationId);
+            }, function() {
+                setStatus('register', 'fail', "API call unsuccessful!");
+            });
         }, false);
 
         function sendRegistrationToBackend(endpoint, registrationId) {
@@ -115,7 +105,6 @@
                                                   + ": " + xhr.statusText);
                 } else {
                     setStatus('register', 'success', "Registered.");
-                    navigator.push.addEventListener("push", onPush, false);
                 }
                 
             };
@@ -126,6 +115,7 @@
             xhr.send(formData);
         }
 
+        /* // TODO: Needs to be a Service Worker
         function onPush(evt) {
             console.log(evt);
             var mayData = JSON.parse(evt.data);
@@ -143,6 +133,7 @@
                 window.focus();
             }
         }
+        */
     </script>
 
 </body></html>
