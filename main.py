@@ -31,6 +31,11 @@ def swstock():
     """Single page stock app using Service Workers."""
     return template('swstock')
 
+@get('/swstock2')
+def swstock2():
+    """Single page stock app using Service Workers v2."""
+    return template('swstock2')
+
 @get('/stock/admin')
 def stock_admin():
     """Lets "admins" trigger stock price drops."""

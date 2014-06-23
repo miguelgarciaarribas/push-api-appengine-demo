@@ -81,6 +81,15 @@
             $('#register-button').disabled = true;
             setStatus('register', '', "");
 
+            navigator.serviceWorker.register('/static/swstock2-sw.js').then(function(sw) {
+                registerForPush();
+            }, function(error) {
+                console.error(error);
+                setStatus('register', 'fail', "SW registration rejected!");
+            });
+        }, false);
+
+        function registerForPush() {
             var SENDER_ID = 'INSERT_SENDER_ID';
             navigator.push.register(SENDER_ID).then(function(pr) {
                 console.log(JSON.stringify(pr));
@@ -89,7 +98,7 @@
             }, function() {
                 setStatus('register', 'fail', "API call unsuccessful!");
             });
-        }, false);
+        }
 
         function sendRegistrationToBackend(endpoint, registrationId) {
             console.log("Sending registration to johnme-gcm.appspot.com...");
@@ -106,6 +115,7 @@
                 } else {
                     setStatus('register', 'success', "Registered.");
                 }
+                
             };
             xhr.onerror = xhr.onabort = function() {
                 setStatus('register', 'fail', "Failed to send registration ID!");
@@ -113,26 +123,6 @@
             xhr.open('POST', '/stock/register');
             xhr.send(formData);
         }
-
-        /* // TODO: Needs to be a Service Worker
-        function onPush(evt) {
-            console.log(evt);
-            var mayData = JSON.parse(evt.data);
-            drawChart(mayData);
-
-            var notification = new Notification("Stock price dropped", {
-                body: "FOOBAR dropped from $1030 to $" + mayData[1],
-                tag: 'stock',
-                icon: 'http://www.courtneyheard.com/wp-content/uploads/2012/10/chart-icon.png'
-            });
-
-            notification.onclick = function() {
-                notification.close();
-                console.log("Notification clicked.");
-                window.focus();
-            }
-        }
-        */
     </script>
 
 </body></html>
