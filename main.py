@@ -66,6 +66,12 @@ def register(type):
     response.status = 201
     return ""
 
+@post('/stock/clear-registrations')
+def clear_registrations():
+    ndb.delete_multi(Registration.query(Registration.type == TYPE_STOCK)
+                                 .fetch(keys_only=True))
+    return ""
+
 @post('/stock/trigger-drop')
 def send_stock():
     return send(TYPE_STOCK, '["May", 183]')

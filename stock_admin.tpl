@@ -19,7 +19,9 @@
     </style>
 </head><body>
     <h1>Stocks App Admin</h1>
-    <button id="drop-button">Trigger price drop</button><span id="drop-result"></span>
+    <button id="drop-button">Trigger price drop</button><span id="drop-result"></span><br>
+    <br><br>
+    <button id="clear-button">Clear all registrations</button><span id="clear-result"></span>
     <script>
         var $ = document.querySelector.bind(document);
 
@@ -49,6 +51,26 @@
                 setStatus('drop', 'fail', "Failed to send!");
             };
             xhr.open('POST', '/stock/trigger-drop');
+            xhr.send();
+        }, false);
+
+        $('#clear-button').addEventListener('click', function() {
+            console.log("Sending clear registrations to johnme-gcm.appspot.com...");
+            setStatus('clear', '', "");
+
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function() {
+                if (('' + xhr.status)[0] != '2') {
+                    setStatus('clear', 'fail', "Server error " + xhr.status
+                                              + ": " + xhr.statusText);
+                } else {
+                    setStatus('clear', 'success', "Cleared.");
+                }
+            };
+            xhr.onerror = xhr.onabort = function() {
+                setStatus('clear', 'fail', "Failed to send!");
+            };
+            xhr.open('POST', '/stock/clear-registrations');
             xhr.send();
         }, false);
     </script>
