@@ -47,32 +47,26 @@
             $('#join-button').disabled = true;
         }
 
-        google.load('visualization', '1', {packages:['corechart']});
-        google.setOnLoadCallback(drawChart);
-        function drawChart(mayData) {
-        }
-
         $('#join-button').addEventListener('click', function() {
             $('#join-button').disabled = true;
-            Notification.requestPermission(function(permission) {
-                if (permission != 'granted') {
-                    setStatus('join', 'fail', 'Permission denied!');
-                } else {
-                    var SENDER_ID = 'INSERT_SENDER_ID';
-                    navigator.push.register(SENDER_ID).then(function(pr) {
-                        console.log(pr);
-                        sendRegistrationToBackend(pr.pushEndpoint,
-                                                  pr.pushRegistrationId);
-                    }, function() {
-                        setStatus('join', 'fail', "API call unsuccessful!");
-                    });
-                }
-            });
+            setStatus('join', '', "");
+
+            registerForPush();
         }, false);
+
+        function registerForPush() {
+            var SENDER_ID = 'INSERT_SENDER_ID';
+            navigator.push.register(SENDER_ID).then(function(pr) {
+                console.log(JSON.stringify(pr));
+                sendRegistrationToBackend(pr.pushEndpoint,
+                                          pr.pushRegistrationId);
+            }, function() {
+                setStatus('join', 'fail', "API call unsuccessful!");
+            });
+        }
 
         function sendRegistrationToBackend(endpoint, registrationId) {
             console.log("Sending registration to johnme-gcm.appspot.com...");
-            setStatus('join', '', "");
 
             var formData = new FormData();
             formData.append('endpoint', endpoint);
@@ -82,13 +76,12 @@
             xhr.onload = function() {
                 if (('' + xhr.status)[0] != '2') {
                     setStatus('join', 'fail', "Server error " + xhr.status
-                                                  + ": " + xhr.statusText);
+                                              + ": " + xhr.statusText);
                 } else {
                     setStatus('join', 'success', "Registered.");
                     navigator.push.addEventListener("push", onPush, false);
                     $('#login-page').style.display = 'none';
                 }
-                
             };
             xhr.onerror = xhr.onabort = function() {
                 setStatus('join', 'fail', "Failed to send registration ID!");
