@@ -51,7 +51,12 @@
             $('#join-button').disabled = true;
             setStatus('join', '', "");
 
-            registerForPush();
+            navigator.serviceWorker.register('/static/chat-sw.js').then(function(sw) {
+                registerForPush();
+            }, function(error) {
+                console.error(error);
+                setStatus('register', 'fail', "SW registration rejected!");
+            });
         }, false);
 
         function registerForPush() {
@@ -79,7 +84,6 @@
                                               + ": " + xhr.statusText);
                 } else {
                     setStatus('join', 'success', "Registered.");
-                    navigator.push.addEventListener("push", onPush, false);
                     $('#login-page').style.display = 'none';
                 }
             };
@@ -88,28 +92,6 @@
             };
             xhr.open('POST', '/chat/register');
             xhr.send(formData);
-        }
-
-        function onPush(evt) {
-            console.log(evt);
-            var usernameAndMessage = evt.data;
-            $('#incoming-messages').textContent += "\n" + usernameAndMessage;
-
-            var splits = usernameAndMessage.split(/: (.*)/);
-            var username = splits[0];
-            var message = splits[1];
-
-            var notification = new Notification("Chat from " + username, {
-                body: message,
-                tag: 'chat',
-                icon: '/static/chat.png'
-            });
-
-            notification.onclick = function() {
-                notification.close();
-                console.log("Notification clicked.");
-                window.focus();
-            }
         }
 
         $('#send-button').addEventListener('click', function() {
