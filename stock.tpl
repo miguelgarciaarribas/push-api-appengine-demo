@@ -1,6 +1,6 @@
 <!doctype html>
 <html><head>
-    <title>Stocks App (non SW)</title>
+    <title>Stocks App (SW)</title>
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <style>
         body {
@@ -41,7 +41,7 @@
             console.log(buttonName + " " + className + ": " + text);
         }
 
-        if (!('push' in navigator) /*|| !('Notification' in window)*/) {
+        if (!('push' in navigator) || !('Notification' in window)) {
             setStatus('register', 'fail',
                       "Your browser does not support push notifications.");
             $('#register-button').disabled = true;
@@ -81,25 +81,24 @@
             $('#register-button').disabled = true;
             setStatus('register', '', "");
 
-            function permissionCallback(permission) {
-                if (permission != 'granted') {
-                    setStatus('register', 'fail', 'Permission denied!');
-                } else {
-                    var SENDER_ID = 'INSERT_SENDER_ID';
-                    navigator.push.register(SENDER_ID).then(function(pr) {
-                        console.log(pr);
-                        sendRegistrationToBackend(pr.pushEndpoint,
-                                                  pr.pushRegistrationId);
-                    }, function() {
-                        setStatus('register', 'fail', "API call unsuccessful!");
-                    });
-                }
-            }
-            if ('Notification' in window)
-                Notification.requestPermission(permissionCallback);
-            else
-                permissionCallback('granted'); // TODO: Temporary hack
+            navigator.serviceWorker.register('/static/stock-sw.js').then(function(sw) {
+                registerForPush();
+            }, function(error) {
+                console.error(error);
+                setStatus('register', 'fail', "SW registration rejected!");
+            });
         }, false);
+
+        function registerForPush() {
+            var SENDER_ID = 'INSERT_SENDER_ID';
+            navigator.push.register(SENDER_ID).then(function(pr) {
+                console.log(JSON.stringify(pr));
+                sendRegistrationToBackend(pr.pushEndpoint,
+                                          pr.pushRegistrationId);
+            }, function() {
+                setStatus('register', 'fail', "API call unsuccessful!");
+            });
+        }
 
         function sendRegistrationToBackend(endpoint, registrationId) {
             console.log("Sending registration to johnme-gcm.appspot.com...");
@@ -115,33 +114,13 @@
                                                   + ": " + xhr.statusText);
                 } else {
                     setStatus('register', 'success', "Registered.");
-                    navigator.push.addEventListener("push", onPush, false);
                 }
-                
             };
             xhr.onerror = xhr.onabort = function() {
                 setStatus('register', 'fail', "Failed to send registration ID!");
             };
             xhr.open('POST', '/stock/register');
             xhr.send(formData);
-        }
-
-        function onPush(evt) {
-            console.log(evt);
-            var mayData = JSON.parse(evt.data);
-            drawChart(mayData);
-
-            var notification = new Notification("Stock price dropped", {
-                body: "FOOBAR dropped from $1030 to $" + mayData[1],
-                tag: 'stock',
-                icon: 'http://www.courtneyheard.com/wp-content/uploads/2012/10/chart-icon.png'
-            });
-
-            notification.onclick = function() {
-                notification.close();
-                console.log("Notification clicked.");
-                window.focus();
-            }
         }
     </script>
 

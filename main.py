@@ -28,13 +28,13 @@ def stock():
 
 @get('/swstock')
 def swstock():
-    """Single page stock app using Service Workers."""
+    """Single page stock app (old version)."""
     return template('swstock')
 
 @get('/swstock2')
 def swstock2():
-    """Single page stock app using Service Workers v2."""
-    return template('swstock2')
+    """Old path alias."""
+    redirect("/stock")
 
 @get('/stock/admin')
 def stock_admin():
