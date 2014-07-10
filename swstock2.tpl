@@ -41,7 +41,7 @@
             console.log(buttonName + " " + className + ": " + text);
         }
 
-        if (!('push' in navigator)) {
+        if (!('push' in navigator) || !('Notification' in window)) {
             setStatus('register', 'fail',
                       "Your browser does not support push notifications.");
             $('#register-button').disabled = true;
@@ -115,7 +115,6 @@
                 } else {
                     setStatus('register', 'success', "Registered.");
                 }
-                
             };
             xhr.onerror = xhr.onabort = function() {
                 setStatus('register', 'fail', "Failed to send registration ID!");
