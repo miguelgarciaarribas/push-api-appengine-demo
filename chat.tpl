@@ -6,6 +6,11 @@
         #login-page {
             position: fixed;
             top: 0; right: 0; bottom: 0; left: 0;
+            margin: 8px;
+            background: white;
+            opacity: 1;
+            -webkit-transition: opacity 0.5s;
+            transition: opacity 0.5s;
         }
         .success {
             color: green;
@@ -41,15 +46,20 @@
             console.log(buttonName + " " + className + ": " + text);
         }
 
-        if (!('push' in navigator) || !('Notification' in window)) {
+        var supportsPush = ('push' in navigator) && ('Notification' in window);
+        if (!supportsPush) {
             setStatus('join', 'fail',
-                      "Your browser does not support push notifications.");
-            $('#join-button').disabled = true;
+                      "Your browser does not support push notifications; you won't be able to receive messages.");
         }
 
         $('#join-button').addEventListener('click', function() {
             $('#join-button').disabled = true;
             setStatus('join', '', "");
+
+            if (!supportsPush) {
+                showChatScreen();
+                return;
+            }
 
             navigator.serviceWorker.register('/static/chat-sw.js').then(function(sw) {
                 registerForPush();
@@ -84,7 +94,7 @@
                                               + ": " + xhr.statusText);
                 } else {
                     setStatus('join', 'success', "Registered.");
-                    $('#login-page').style.display = 'none';
+                    showChatScreen();
                 }
             };
             xhr.onerror = xhr.onabort = function() {
@@ -92,6 +102,13 @@
             };
             xhr.open('POST', '/chat/register');
             xhr.send(formData);
+        }
+
+        function showChatScreen() {
+            $('#login-page').style.opacity = 0;
+            setTimeout(function() {
+                $('#login-page').style.display = 'none';
+            }, 510);
         }
 
         $('#send-button').addEventListener('click', function() {
