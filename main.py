@@ -95,7 +95,7 @@ def send(type, data):
     """XHR requesting that we send a push message to all users."""
     # TODO: Should limit batches to 1000 registration_ids at a time.
     registration_ids = [r.key.string_id() for r in Registration.query(
-                        Registration.type == TYPE_STOCK).iter()]
+                        Registration.type == type).iter()]
     if not registration_ids:
         abort(500, "No registered devices.")
     post_data = json.dumps({
