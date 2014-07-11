@@ -36,10 +36,15 @@ def swstock2():
     """Old path alias."""
     redirect("/stock")
 
+@get('/admin')
+def admin():
+    """Lets "admins" trigger stock price drops and clear registrations."""
+    return template('admin')
+
 @get('/stock/admin')
 def stock_admin():
-    """Lets "admins" trigger stock price drops."""
-    return template('stock_admin')
+    """Old path alias."""
+    redirect("/stock/admin")
 
 @get('/chat')
 def chat():
@@ -67,8 +72,14 @@ def register(type):
     return ""
 
 @post('/stock/clear-registrations')
-def clear_registrations():
+def clear_stock_registrations():
     ndb.delete_multi(Registration.query(Registration.type == TYPE_STOCK)
+                                 .fetch(keys_only=True))
+    return ""
+
+@post('/chat/clear-registrations')
+def clear_chat_registrations():
+    ndb.delete_multi(Registration.query(Registration.type == TYPE_CHAT)
                                  .fetch(keys_only=True))
     return ""
 

@@ -19,9 +19,11 @@
     </style>
 </head><body>
     <h1>Stocks App Admin</h1>
-    <button id="drop-button">Trigger price drop</button><span id="drop-result"></span><br>
-    <br><br>
-    <button id="clear-button">Clear all registrations</button><span id="clear-result"></span>
+    <button id="drop-stock-button">Trigger price drop</button><span id="drop-result"></span>
+    <br><br><br>
+    <button id="clear-stock-button">Clear all /stock registrations</button><span id="clear-stock-result"></span>
+    <br><br><br>
+    <button id="clear-chat-button">Clear all /chat registrations</button><span id="clear-chat-result"></span>
     <script>
         var $ = document.querySelector.bind(document);
 
@@ -34,7 +36,7 @@
             console.log(buttonName + " " + className + ": " + text);
         }
 
-        $('#drop-button').addEventListener('click', function() {
+        $('#drop-stock-button').addEventListener('click', function() {
             console.log("Sending price drop to johnme-gcm.appspot.com...");
             setStatus('drop', '', "");
 
@@ -54,25 +56,33 @@
             xhr.send();
         }, false);
 
-        $('#clear-button').addEventListener('click', function() {
-            console.log("Sending clear registrations to johnme-gcm.appspot.com...");
-            setStatus('clear', '', "");
+        $('#clear-stock-button').addEventListener('click', function() {
+            clearRegistrations('stock');
+        }, false);
+        $('#clear-chat-button').addEventListener('click', function() {
+            clearRegistrations('chat');
+        }, false);
+
+        function clearRegistrations(type) {
+            console.log("Sending clear " + type + " registrations to johnme-gcm.appspot.com...");
+            var statusId = 'clear-' + type;
+            setStatus(statusId, '', "");
 
             var xhr = new XMLHttpRequest();
             xhr.onload = function() {
                 if (('' + xhr.status)[0] != '2') {
-                    setStatus('clear', 'fail', "Server error " + xhr.status
-                                              + ": " + xhr.statusText);
+                    setStatus(statusId, "Server error " + xhr.status
+                                        + ": " + xhr.statusText);
                 } else {
-                    setStatus('clear', 'success', "Cleared.");
+                    setStatus(statusId, 'success', "Cleared.");
                 }
             };
             xhr.onerror = xhr.onabort = function() {
-                setStatus('clear', 'fail', "Failed to send!");
+                setStatus(statusId, 'fail', "Failed to send!");
             };
-            xhr.open('POST', '/stock/clear-registrations');
+            xhr.open('POST', '/' + type + '/clear-registrations');
             xhr.send();
-        }, false);
+        }
     </script>
 
 </body></html>
