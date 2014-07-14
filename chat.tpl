@@ -24,13 +24,17 @@
     </style>
 </head><body>
     <section id="login-page">
-        <label>Username: <input type="text" id="username"></label><br>
-        <button id="join-button">Join chatroom</button><span id="join-result"></span>
+        <form id="join-form">
+            <label>Username: <input type="text" id="username"></label><br>
+            <button>Join chatroom</button><span id="join-result"></span>
+        </form>
     </section>
     <section id="chat-page">
         <pre id="incoming-messages"></pre>
-        <input type="text" id="message">
-        <button id="send-button">Send</button><span id="send-result"></span>
+        <form id="send-form">
+            <input type="text" id="message">
+            <button>Send</button><span id="send-result"></span>
+        </form>
     </section>
     <script>
         var $ = document.querySelector.bind(document);
@@ -42,7 +46,7 @@
                 return;
             result.className = className;
             if (buttonName == 'join' && className == 'fail')
-                $('#join-button').disabled = false;
+                $('#join-form > button').disabled = false;
             console.log(buttonName + " " + className + ": " + text);
         }
 
@@ -52,8 +56,9 @@
                       "Your browser does not support push notifications; you won't be able to receive messages.");
         }
 
-        $('#join-button').addEventListener('click', function() {
-            $('#join-button').disabled = true;
+        $('#join-form').addEventListener('submit', function(evt) {
+            evt.preventDefault();
+            $('#join-form > button').disabled = true;
             setStatus('join', '', "");
 
             if (!supportsPush) {
@@ -111,7 +116,8 @@
             }, 510);
         }
 
-        $('#send-button').addEventListener('click', function() {
+        $('#send-form').addEventListener('submit', function(evt) {
+            evt.preventDefault();
             console.log("Sending message to johnme-gcm.appspot.com...");
             setStatus('send', '', "");
 
