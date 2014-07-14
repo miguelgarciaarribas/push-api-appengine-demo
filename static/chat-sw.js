@@ -2,6 +2,8 @@
 
 importScripts("/static/localforage.js");
 
+var self = this;
+
 this.addEventListener("install", function(evt) {
     console.log("SW oninstall");
 });
@@ -20,7 +22,12 @@ this.addEventListener('push', function(evt) {
         localforage.setItem('messages', newText);
     });
 
-    showNotification(usernameAndMessage);
+    self.clients.getServiced().then(function(clients) {
+        // Only show notification when tab is closed.
+        // TODO: Should also show notification when tab is open but not visible.
+        if (clients.length == 0)
+            showNotification(usernameAndMessage);
+    });
 });
 
 function showNotification(usernameAndMessage) {
