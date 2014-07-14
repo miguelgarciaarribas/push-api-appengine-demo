@@ -17,7 +17,6 @@
         #login-page {
             position: fixed;
             top: 0; right: 0; bottom: 0; left: 0;
-            margin: 8px;
             background: white;
             opacity: 1;
             transition: opacity 0.5s;
@@ -35,10 +34,10 @@
             background-position: 24px center;
             padding-left: 72px;
         }
-        #incoming-messages, #send-form {
+        #join-form, #send-form, #incoming-messages {
             margin: 1em;
         }
-        #incoming-messages, #send-form, #send-form * {
+        #join-form, #join-form *, #send-form, #send-form *, #incoming-messages {
             font-size: 16px;
         }
         .success {
