@@ -2,7 +2,12 @@
 <html><head>
     <title>Chat App</title>
     <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link href="//fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
     <style>
+        html, body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+        }
         #loading-page {
             position: fixed;
             top: 0; right: 0; bottom: 0; left: 0;
@@ -15,8 +20,26 @@
             margin: 8px;
             background: white;
             opacity: 1;
-            -webkit-transition: opacity 0.5s;
             transition: opacity 0.5s;
+        }
+        .action-bar {
+            background-color: #259b24;
+            color: white;
+
+            line-height: 64px;
+            font-size: 24px;
+
+            background-image: url("//material-design.storage.googleapis.com/images/hamburger.svg");
+            background-size: 24px 24px;
+            background-repeat: no-repeat;
+            background-position: 24px center;
+            padding-left: 72px;
+        }
+        #incoming-messages, #send-form {
+            margin: 1em;
+        }
+        #incoming-messages, #send-form, #send-form * {
+            font-size: 16px;
         }
         .success {
             color: green;
@@ -31,12 +54,14 @@
 </head><body>
     <section id="loading-page"></section>
     <section id="login-page">
+        <div class="action-bar">Team chat</div>
         <form id="join-form">
             <label>Username: <input type="text" id="username"></label><br>
             <button>Join chatroom</button><span id="join-result"></span>
         </form>
     </section>
     <section id="chat-page">
+        <div class="action-bar">Team chat</div>
         <pre id="incoming-messages"></pre>
         <form id="send-form">
             <input type="text" id="message">
