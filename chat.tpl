@@ -107,8 +107,6 @@
             $('#join-form > button').disabled = true;
             setStatus('join', '', "");
 
-            localforage.setItem('username', $('#username').value);
-
             if (!supportsPush) {
                 showChatScreen(false);
                 return;
@@ -162,6 +160,7 @@
                 $('#login-page').style.display = 'none';
                 return;
             }
+            localforage.setItem('username', $('#username').value);
             $('#login-page').style.opacity = 0;
             setTimeout(function() {
                 $('#login-page').style.display = 'none';
