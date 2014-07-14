@@ -36,6 +36,7 @@
             <button>Send</button><span id="send-result"></span>
         </form>
     </section>
+    <script src="/static/localforage.js"></script>
     <script>
         var $ = document.querySelector.bind(document);
 
@@ -115,6 +116,15 @@
                 $('#login-page').style.display = 'none';
             }, 510);
         }
+
+        function updateText() {
+            localforage.getItem('messages').then(function(text) {
+                $('#incoming-messages').textContent = text;
+                // Poll for new messages; TODO: instead, postMessage from SW.
+                setTimeout(updateText, 100);
+            });
+        }
+        updateText();
 
         $('#send-form').addEventListener('submit', function(evt) {
             evt.preventDefault();
