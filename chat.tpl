@@ -3,6 +3,12 @@
     <title>Chat App</title>
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <style>
+        #loading-page {
+            position: fixed;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background: white;
+            z-index: 2;
+        }
         #login-page {
             position: fixed;
             top: 0; right: 0; bottom: 0; left: 0;
@@ -23,6 +29,7 @@
         }
     </style>
 </head><body>
+    <section id="loading-page"></section>
     <section id="login-page">
         <form id="join-form">
             <label>Username: <input type="text" id="username"></label><br>
@@ -40,6 +47,14 @@
     <script>
         var $ = document.querySelector.bind(document);
 
+        localforage.getItem('username').then(function(username) {
+            if (username != null) {
+                $('#username').value = username;
+                showChatScreen(true);
+            }
+            $('#loading-page').style.display = 'none';
+        });
+
         function setStatus(buttonName, className, text) {
             var result = $('#' + buttonName + '-result');
             result.textContent = " " + text;
@@ -51,7 +66,9 @@
             console.log(buttonName + " " + className + ": " + text);
         }
 
-        var supportsPush = ('push' in navigator) && ('Notification' in window);
+        var supportsPush = ('push' in navigator) &&
+                           ('Notification' in window) &&
+                           ('serviceWorker' in navigator);
         if (!supportsPush) {
             setStatus('join', 'fail',
                       "Your browser does not support push notifications; you won't be able to receive messages.");
@@ -62,8 +79,10 @@
             $('#join-form > button').disabled = true;
             setStatus('join', '', "");
 
+            localforage.setItem('username', $('#username').value);
+
             if (!supportsPush) {
-                showChatScreen();
+                showChatScreen(false);
                 return;
             }
 
@@ -73,7 +92,7 @@
                 console.error(error);
                 setStatus('register', 'fail', "SW registration rejected!");
             });
-        }, false);
+        });
 
         function registerForPush() {
             var SENDER_ID = 'INSERT_SENDER_ID';
@@ -100,7 +119,7 @@
                                               + ": " + xhr.statusText);
                 } else {
                     setStatus('join', 'success', "Registered.");
-                    showChatScreen();
+                    showChatScreen(false);
                 }
             };
             xhr.onerror = xhr.onabort = function() {
@@ -110,7 +129,11 @@
             xhr.send(formData);
         }
 
-        function showChatScreen() {
+        function showChatScreen(immediate) {
+            if (immediate) {
+                $('#login-page').style.display = 'none';
+                return;
+            }
             $('#login-page').style.opacity = 0;
             setTimeout(function() {
                 $('#login-page').style.display = 'none';
@@ -149,7 +172,7 @@
             };
             xhr.open('POST', '/chat/send');
             xhr.send(formData);
-        }, false);
+        });
     </script>
 
 </body></html>
