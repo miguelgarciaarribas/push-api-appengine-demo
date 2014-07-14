@@ -82,7 +82,10 @@
 
         function setStatus(buttonName, className, text) {
             var result = $('#' + buttonName + '-result');
-            result.textContent = " " + text;
+            if (className == 'success')
+                result.textContent = ""; // Don't bother notifying success.
+            else
+                result.textContent = " " + text;
             if (!text)
                 return;
             result.className = className;
@@ -190,6 +193,7 @@
                                               + ": " + xhr.statusText);
                 } else {
                     setStatus('send', 'success', "Triggered.");
+                    $('#message').value = "";
                 }
             };
             xhr.onerror = xhr.onabort = function() {
