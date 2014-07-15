@@ -2,6 +2,7 @@
 <html><head>
     <title>Chat App</title>
     <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link rel="icon" type="image/png" href="/static/hangouts.png" sizes="42x42">
     <link href="//fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
     <style>
         html, body {
