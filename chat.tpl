@@ -44,6 +44,19 @@
         }
         #join-form, #join-form *, #send-form, #send-form *, #incoming-messages {
             font-size: 16px;
+            vertical-align: middle;
+        }
+        #message {
+            line-height: 32px;
+        }
+        #send-form > button {
+            width: 48px;
+            height: 48px;
+            background: url(/static/send.png);
+            background-size: contain;
+            border: none;
+            padding: 0;
+            margin: 0;
         }
         .success {
             color: green;
@@ -70,7 +83,7 @@
         <pre id="incoming-messages"></pre>
         <form id="send-form">
             <input type="text" id="message">
-            <button>Send</button><span id="send-result"></span>
+            <button></button><span id="send-result"></span>
         </form>
     </section>
     <script src="/static/localforage.js"></script>
