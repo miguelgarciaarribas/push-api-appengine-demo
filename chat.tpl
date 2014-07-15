@@ -21,6 +21,11 @@
             opacity: 1;
             transition: opacity 0.5s;
         }
+        #workaround-header {
+            display: none;
+            height: 56px;
+            background-color: #0a7e07;
+        }
         .action-bar {
             background-color: #259b24;
             color: white;
@@ -60,6 +65,7 @@
         </form>
     </section>
     <section id="chat-page">
+        <div id="workaround-header"></div>
         <div class="action-bar">Team chat</div>
         <pre id="incoming-messages"></pre>
         <form id="send-form">
@@ -70,6 +76,24 @@
     <script src="/static/localforage.js"></script>
     <script>
         var $ = document.querySelector.bind(document);
+
+        function crazyHack() {
+            if (window.outerHeight == 0) {
+                setTimeout(crazyHack, 32);
+                return;
+            }
+            // CRAZY HACK: When opening Chrome after receiving a push message in
+            // the background, the top controls manager can get confused,
+            // causing the omnibox to permanently overlap the top 56 pixels of
+            // the page. Detect this and work around it with a spacer div.
+            console.log("screen.height = " + screen.height);
+            console.log("window.outerHeight = " + window.outerHeight);
+            if (screen.height - window.outerHeight == 25) {
+                $('#workaround-header').style.display = 'block';
+            }
+        }
+        crazyHack();
+        window.addEventListener("resize", crazyHack);
 
         localforage.getItem('username').then(function(username) {
             if (username != null) {
