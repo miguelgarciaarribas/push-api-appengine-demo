@@ -1,0 +1,20 @@
+CACHE MANIFEST
+# version 1
+
+CACHE:
+/chat
+/static/hangouts.png
+https://fonts.googleapis.com/css?family=Roboto
+/static/localforage.js
+https://material-design.storage.googleapis.com/images/hamburger.svg
+https://themes.googleusercontent.com/static/fonts/roboto/v11/2UX7WLTfW3W8TclTUvlFyQ.woff
+/static/send.png
+/static/chat-sw.js
+/static/chat.png
+
+NETWORK:
+/chat/register
+/chat/send
+#*
+#http://*
+#https://*

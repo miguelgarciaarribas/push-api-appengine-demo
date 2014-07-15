@@ -20,6 +20,11 @@ handlers:
   script: google.appengine.ext.admin.application
   login: admin
 
+- url: /chat.appcache
+  static_files: static/chat.appcache
+  mime_type: text/cache-manifest
+  upload: static/chat.appcache
+
 # App Engine serves and caches static files contained in the listed directories
 # (and subdirectories). Uncomment and set the directory as needed.
 - url: /static
