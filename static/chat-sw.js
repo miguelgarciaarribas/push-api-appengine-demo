@@ -1,15 +1,65 @@
 "use strict";
 
 importScripts("/static/localforage.js");
+importScripts("/static/polyfills/idbCacheUtils.js");
+importScripts("/static/polyfills/fetchPolyfill.js");
+importScripts("/static/polyfills/idbCachePolyfill.js");
+importScripts("/static/polyfills/idbCacheStoragePolyfill.js");
 
-var self = this;
+var baseUrl = new URL("/", this.location.href) + "";
 
 this.addEventListener("install", function(evt) {
     console.log("SW oninstall");
+    evt.waitUntil(caches.create("core").then(function(core) {
+        var resourceUrls = [
+            'chat',
+            'static/chat-sw.js',
+            'static/chat.png',
+            'static/hamburger.svg',
+            'static/hangouts.png',
+            'static/localforage.js',
+            'static/roboto.css',
+            'static/roboto.woff',
+            'static/send.png'
+        ];
+
+        return Promise.all(resourceUrls.map(function(relativeUrl) {
+            return core.add(baseUrl + relativeUrl);
+        }));
+    }));
 });
 
 this.addEventListener("activate", function(evt) {
     console.log("SW onactivate");
+});
+
+this.addEventListener("fetch", function(evt) {
+    var request = evt.request;
+
+    // Skip any cross-origin URLs for now.
+    if (this.scope.indexOf(request.origin) == -1) {
+        console.log("onfetch skipped because bad scope, for " + request.url);
+        return;
+    }
+
+    evt.respondWith(
+        caches.match(request, "core").then(function(response) {
+            //console.log("onfetch success for " + request.url);
+            return response;
+        }, function(err) {
+            console.log("onfetch falling back to network for " + request.url);
+            console.log(request.url + ":" + err);
+            return fetch(request);
+        }).catch(function() {
+            console.log("onfetch GOING SUPERHACK for " + request.url);
+            var headers = new HeaderMap();
+            headers.set('Content-Type', 'text/html');
+            new Response(
+                new Blob(['<meta http-equiv="refresh" content="1">']),
+                {headers: headers}
+            );
+        })
+    );
 });
 
 this.addEventListener('push', function(evt) {

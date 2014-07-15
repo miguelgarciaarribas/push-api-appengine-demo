@@ -3,7 +3,7 @@
     <title>Chat App</title>
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <link rel="icon" type="image/png" href="/static/hangouts.png" sizes="42x42">
-    <link href="//fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+    <link href="/static/roboto.css" rel="stylesheet" type="text/css">
     <style>
         html, body {
             font-family: 'Roboto', sans-serif;
@@ -34,7 +34,7 @@
             line-height: 64px;
             font-size: 24px;
 
-            background-image: url("//material-design.storage.googleapis.com/images/hamburger.svg");
+            background-image: url("/static/hamburger.svg");
             background-size: 24px 24px;
             background-repeat: no-repeat;
             background-position: 24px center;
