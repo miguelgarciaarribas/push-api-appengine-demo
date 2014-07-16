@@ -13,6 +13,7 @@ this.addEventListener("install", function(evt) {
     evt.waitUntil(caches.create("core").then(function(core) {
         var resourceUrls = [
             'chat',
+            'static/cat.png',
             'static/chat-sw.js',
             'static/chat.png',
             'static/hamburger.svg',
@@ -89,7 +90,7 @@ function showNotification(usernameAndMessage) {
         serviceWorker: true,
         body: message,
         tag: 'chat',
-        icon: '/static/chat.png'
+        icon: '/static/cat.png'
     });
 }
 
