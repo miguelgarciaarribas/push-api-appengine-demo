@@ -4,32 +4,55 @@ import json
 import urllib
 import bottle
 from bottle import get, post, abort, template, request, response
-from google.appengine.api import urlfetch
+from google.appengine.api import urlfetch, users
 from google.appengine.ext import ndb
 
 GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send'
 
-# TODO: Have the user provide this, and store it in the datastore
-# rather than hardcoding it.
-GCM_API_KEY = 'INSERT_API_KEY'
-
 TYPE_STOCK = 1
 TYPE_CHAT = 2
+
+class Settings(ndb.Model):
+    SINGLETON_DATASTORE_KEY = 'SINGLETON'
+
+    @classmethod
+    def singleton(cls):
+        return cls.get_or_insert(cls.SINGLETON_DATASTORE_KEY)
+
+    sender_id = ndb.StringProperty(default="", indexed=False)
+    api_key = ndb.StringProperty(default="", indexed=False)
 
 # TODO: Probably cheaper to have a singleton entity with a repeated property?
 class Registration(ndb.Model):
     type = ndb.IntegerProperty(required=True, choices=[TYPE_STOCK, TYPE_CHAT])
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
 
+@get('/setup')
+@post('/setup')
+def setup():
+    # app.yaml should already have ensured that the user is logged in as admin.
+    if not users.is_current_user_admin():
+        abort(401, "Sorry, only administrators can access this page.")
+    result = ""
+    settings = Settings.singleton()
+    if request.forms.sender_id and request.forms.api_key:
+        settings.sender_id = request.forms.sender_id
+        settings.api_key = request.forms.api_key
+        settings.put()
+        result = 'Updated successfully'
+    return template('setup', result=result,
+                             sender_id=settings.sender_id,
+                             api_key=settings.api_key)
+
 @get('/stock')
 def stock():
     """Single page stock app. Displays stock data and lets users register."""
-    return template('stock')
+    return template_with_sender_id('stock')
 
 @get('/swstock')
 def swstock():
     """Single page stock app (old version)."""
-    return template('swstock')
+    return template_with_sender_id('swstock')
 
 @get('/swstock2')
 def swstock2():
@@ -39,7 +62,8 @@ def swstock2():
 @get('/admin')
 def admin():
     """Lets "admins" trigger stock price drops and clear registrations."""
-    return template('admin')
+    # This template doesn't actually use the sender_id, but we want the warning.
+    return template_with_sender_id('admin')
 
 @get('/stock/admin')
 def stock_admin():
@@ -49,7 +73,15 @@ def stock_admin():
 @get('/chat')
 def chat():
     """Single page chat app."""
-    return template('chat')
+    return template_with_sender_id('chat')
+
+def template_with_sender_id(*args, **kwargs):
+    settings = Settings.singleton()
+    if not settings.sender_id or not settings.api_key:
+        abort(500, "You need to visit /setup to provide a GCM sender ID and "
+                   "corresponding API key")
+    kwargs['sender_id'] = settings.sender_id
+    return template(*args, **kwargs)
 
 @post('/stock/register')
 def register_stock():
@@ -107,12 +139,13 @@ def send(type, data):
         #"time_to_live": 108,
         #"delay_while_idle": true,
     })
+    settings = Settings.singleton()
     result = urlfetch.fetch(url=GCM_ENDPOINT,
                             payload=post_data,
                             method=urlfetch.POST,
                             headers={
                                 'Content-Type': 'application/json',
-                                'Authorization': 'key=' + GCM_API_KEY,
+                                'Authorization': 'key=' + settings.api_key,
                             })
     if result.status_code != 200:
         abort(500, "Sending failed (status code %d)." % result.status_code)

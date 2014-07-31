@@ -90,7 +90,7 @@
         }, false);
 
         function registerForPush() {
-            var SENDER_ID = 'INSERT_SENDER_ID';
+            var SENDER_ID = '{{sender_id}}';
             navigator.push.register(SENDER_ID).then(function(pr) {
                 console.log(JSON.stringify(pr));
                 sendRegistrationToBackend(pr.pushEndpoint,
