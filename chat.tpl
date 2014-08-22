@@ -75,7 +75,7 @@
         <div class="action-bar">Team chat</div>
         <form id="join-form">
             <label>Username: <input type="text" id="username"></label><br>
-            <button>Join chatroom</button><span id="join-result"></span>
+            <button>Join chatroom</button><span id="join-result"></span><span id="join-resultLink"></span>
         </form>
     </section>
     <section id="chat-page">
@@ -84,7 +84,7 @@
         <pre id="incoming-messages"></pre>
         <form id="send-form">
             <input type="text" id="message">
-            <button></button><span id="send-result"></span>
+            <button></button><span id="send-result"></span><span id="send-resultLink"></span>
         </form>
     </section>
     <script src="/static/localforage.js"></script>
@@ -117,15 +117,19 @@
             $('#loading-page').style.display = 'none';
         });
 
-        function setStatus(buttonName, className, text) {
+        function setStatus(buttonName, className, text, responseText) {
             var result = $('#' + buttonName + '-result');
+            var resultLink = $('#' + buttonName + '-resultLink');
             if (className == 'success')
                 result.textContent = ""; // Don't bother notifying success.
             else
                 result.textContent = " " + text;
+            if (responseText)
+                resultLink.innerHTML = " <a href='data:text/html," + encodeURIComponent(responseText) + "'>(Full message)</a>";
             if (!text)
                 return;
             result.className = className;
+            resultLink.className = className;
             if (buttonName == 'join' && className == 'fail')
                 $('#join-form > button').disabled = false;
             console.log(buttonName + " " + className + ": " + text);
@@ -226,7 +230,7 @@
             xhr.onload = function() {
                 if (('' + xhr.status)[0] != '2') {
                     setStatus('send', 'fail', "Server error " + xhr.status
-                                              + ": " + xhr.statusText);
+                                              + ": " + xhr.statusText, xhr.responseText);
                 } else {
                     setStatus('send', 'success', "Triggered.");
                     $('#message').value = "";
