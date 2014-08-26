@@ -109,13 +109,21 @@
         crazyHack();
         window.addEventListener("resize", crazyHack);
 
-        localforage.getItem('username').then(function(username) {
+        var USER_FROM_GET = '{{user_from_get}}';
+        if (USER_FROM_GET) {
+            localforage.setItem('username', USER_FROM_GET)
+            gotUsername(USER_FROM_GET);
+        }
+
+        localforage.getItem('username').then(gotUsername);
+
+        function gotUsername(username) {
             if (username != null) {
                 $('#username').value = username;
                 showChatScreen(true);
             }
             $('#loading-page').style.display = 'none';
-        });
+        }
 
         function setStatus(buttonName, className, text, responseText) {
             var result = $('#' + buttonName + '-result');
@@ -140,6 +148,8 @@
                            ('serviceWorker' in navigator);
         if (!supportsPush) {
             setStatus('join', 'fail',
+                      "Your browser does not support push notifications; you won't be able to receive messages.");
+            setStatus('send', 'fail',
                       "Your browser does not support push notifications; you won't be able to receive messages.");
         }
 
