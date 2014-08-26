@@ -92,7 +92,7 @@
         }, false);
 
         function sendRegistrationToBackend(endpoint, registrationId) {
-            console.log("Sending registration to johnme-gcm.appspot.com...");
+            console.log("Sending registration to " + location.hostname + "...");
 
             var formData = new FormData();
             formData.append('endpoint', endpoint);

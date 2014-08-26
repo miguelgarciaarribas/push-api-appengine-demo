@@ -185,7 +185,7 @@
         }
 
         function sendRegistrationToBackend(endpoint, registrationId) {
-            console.log("Sending registration to johnme-gcm.appspot.com...");
+            console.log("Sending registration to " + location.hostname + "...");
 
             var formData = new FormData();
             formData.append('endpoint', endpoint);
@@ -231,7 +231,7 @@
 
         $('#send-form').addEventListener('submit', function(evt) {
             evt.preventDefault();
-            console.log("Sending message to johnme-gcm.appspot.com...");
+            console.log("Sending message to " + location.hostname + "...");
             setStatus('send', '', "");
 
             var formData = new FormData();

@@ -37,7 +37,7 @@
         }
 
         $('#drop-stock-button').addEventListener('click', function() {
-            console.log("Sending price drop to johnme-gcm.appspot.com...");
+            console.log("Sending price drop to " + location.hostname + "...");
             setStatus('drop', '', "");
 
             var xhr = new XMLHttpRequest();
@@ -64,7 +64,7 @@
         }, false);
 
         function clearRegistrations(type) {
-            console.log("Sending clear " + type + " registrations to johnme-gcm.appspot.com...");
+            console.log("Sending clear " + type + " registrations to " + location.hostname + "...");
             var statusId = 'clear-' + type;
             setStatus(statusId, '', "");
 
