@@ -111,11 +111,11 @@
 
         var USER_FROM_GET = '{{user_from_get}}';
         if (USER_FROM_GET) {
-            localforage.setItem('username', USER_FROM_GET)
+            localforage.setItem('username', USER_FROM_GET);
             gotUsername(USER_FROM_GET);
+        } else {
+            localforage.getItem('username').then(gotUsername);
         }
-
-        localforage.getItem('username').then(gotUsername);
 
         function gotUsername(username) {
             if (username != null) {
@@ -134,6 +134,8 @@
                 result.textContent = " " + text;
             if (responseText)
                 resultLink.innerHTML = " <a href='data:text/html," + encodeURIComponent(responseText) + "'>(Full message)</a>";
+            else
+                resultLink.innerHTML = "";
             if (!text)
                 return;
             result.className = className;
