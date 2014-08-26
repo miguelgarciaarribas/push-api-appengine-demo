@@ -109,22 +109,6 @@
         crazyHack();
         window.addEventListener("resize", crazyHack);
 
-        var USER_FROM_GET = '{{user_from_get}}';
-        if (USER_FROM_GET) {
-            localforage.setItem('username', USER_FROM_GET);
-            gotUsername(USER_FROM_GET);
-        } else {
-            localforage.getItem('username').then(gotUsername);
-        }
-
-        function gotUsername(username) {
-            if (username != null) {
-                $('#username').value = username;
-                showChatScreen(true);
-            }
-            $('#loading-page').style.display = 'none';
-        }
-
         function setStatus(buttonName, className, text, responseText) {
             var result = $('#' + buttonName + '-result');
             var resultLink = $('#' + buttonName + '-resultLink');
@@ -155,8 +139,29 @@
                       "Your browser does not support push notifications; you won't be able to receive messages.");
         }
 
+        var usernamePromise = localforage.getItem('username');
+        window.addEventListener('DOMContentLoaded', function() {
+            usernamePromise.then(function(username) {
+                var AUTO_REGISTER_USERNAME = '{{user_from_get}}';
+                if (username != null) {
+                    // We've already registered.
+                    $('#username').value = username;
+                    showChatScreen(true);
+                } else if (AUTO_REGISTER_USERNAME) {
+                    // Try to auto-register.
+                    $('#username').value = AUTO_REGISTER_USERNAME;
+                    joinChat();
+                }
+                $('#loading-page').style.display = 'none';
+            });
+        });
+
         $('#join-form').addEventListener('submit', function(evt) {
             evt.preventDefault();
+            joinChat();
+        });
+
+        function joinChat() {
             $('#join-form > button').disabled = true;
             setStatus('join', '', "");
 
@@ -171,7 +176,7 @@
                 console.error(error);
                 setStatus('register', 'fail', "SW registration rejected!");
             });
-        });
+        }
 
         function registerForPush() {
             var SENDER_ID = '{{sender_id}}';
