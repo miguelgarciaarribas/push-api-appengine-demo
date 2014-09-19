@@ -50,6 +50,9 @@
         #message {
             line-height: 32px;
         }
+        #you-are-logged-in {
+            display: none;
+        }
         #send-form > button {
             width: 48px;
             height: 48px;
@@ -82,6 +85,7 @@
         <div id="workaround-header"></div>
         <div class="action-bar">Team chat</div>
         <pre id="incoming-messages"></pre>
+        <div class="you-are-logged-in" id="you-are-logged-in">You are logged in as <div id="you-are-logged-in-username"></div></div>
         <form id="send-form">
             <input type="text" id="message">
             <button></button><span id="send-result"></span><span id="send-resultLink"></span>
@@ -129,14 +133,21 @@
             console.log(buttonName + " " + className + ": " + text);
         }
 
-        var supportsPush = ('push' in navigator) &&
-                           ('Notification' in window) &&
-                           ('serviceWorker' in navigator);
+        var hasPush = !!navigator.push;
+        var hasNotification = !!window.Notification;
+        var hasServiceWorker = !!navigator.serviceWorker;
+        var supportsPush = hasPush && hasNotification && hasServiceWorker;
         if (!supportsPush) {
-            setStatus('join', 'fail',
-                      "Your browser does not support push notifications; you won't be able to receive messages.");
-            setStatus('send', 'fail',
-                      "Your browser does not support push notifications; you won't be able to receive messages.");
+            function setBothStatuses(message) {
+                setStatus('join', 'fail', message);
+                setStatus('send', 'fail', message);
+            }
+            if (!hasPush || !hasServiceWorker) {
+                var whatsMissing = hasPush ? "ServiceWorker" : hasServiceWorker ? "push messaging" : "push messaging or ServiceWorker";
+                setBothStatuses("Your browser does not support " + whatsMissing + "; you won't be able to receive messages.");
+            } else if (!hasNotification) {
+                setBothStatuses("Your browser doesn't support notifications; you won't be able to receive messages when the page is not open");
+            }
         }
 
         var usernamePromise = localforage.getItem('username');
@@ -153,6 +164,8 @@
                     joinChat();
                 }
                 $('#loading-page').style.display = 'none';
+                $('#you-are-logged-in-username').textContent = username;
+                $('#you-are-logged-in').style.display = 'block';
             });
         });
 
@@ -165,7 +178,8 @@
             $('#join-form > button').disabled = true;
             setStatus('join', '', "");
 
-            if (!supportsPush) {
+            console.log("join-form submit handler");
+            if (!hasPush || !hasServiceWorker) {
                 showChatScreen(false);
                 return;
             }
@@ -174,18 +188,19 @@
                 registerForPush();
             }, function(error) {
                 console.error(error);
-                setStatus('register', 'fail', "SW registration rejected!");
+                setStatus('join', 'fail', "SW registration rejected: " + error);
             });
         }
 
         function registerForPush() {
+            console.log("registerForPush");
             var SENDER_ID = '{{sender_id}}';
             navigator.push.register(SENDER_ID).then(function(pr) {
                 console.log(JSON.stringify(pr));
                 sendRegistrationToBackend(pr.pushEndpoint,
                                           pr.pushRegistrationId);
-            }, function() {
-                setStatus('join', 'fail', "API call unsuccessful!");
+            }, function(err) {
+                setStatus('join', 'fail', "API call unsuccessful! " + err);
                 // HACK: Force a reload with auto-register enabled, to work
                 // around a bug in Chrome's current Push API implementation,
                 // that makes it require a controlling instead of active SW.
