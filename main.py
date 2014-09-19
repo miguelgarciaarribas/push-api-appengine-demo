@@ -7,18 +7,21 @@ from bottle import get, post, abort, template, request, response
 from google.appengine.api import app_identity, urlfetch, users
 from google.appengine.ext import ndb
 
-GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send'
+DEFAULT_GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send'
 
 TYPE_STOCK = 1
 TYPE_CHAT = 2
 
-class Settings(ndb.Model):
+class GcmSettings(ndb.Model):
     SINGLETON_DATASTORE_KEY = 'SINGLETON'
 
     @classmethod
     def singleton(cls):
         return cls.get_or_insert(cls.SINGLETON_DATASTORE_KEY)
 
+    endpoint = ndb.StringProperty(
+            default=DEFAULT_GCM_ENDPOINT,
+            indexed=False)
     sender_id = ndb.StringProperty(default="", indexed=False)
     api_key = ndb.StringProperty(default="", indexed=False)
 
@@ -34,18 +37,21 @@ def setup():
     if not users.is_current_user_admin():
         abort(401, "Sorry, only administrators can access this page.")
     result = ""
-    settings = Settings.singleton()
-    if request.forms.sender_id and request.forms.api_key:
+    settings = GcmSettings.singleton()
+    if (request.forms.sender_id and request.forms.api_key and
+            request.forms.endpoint):
         # Basic CSRF protection (will block some valid requests, like
         # https://1-dot-johnme-gcm.appspot.com/setup but ohwell).
         if request.get_header('Referer') != ('https://%s/setup' %
                 app_identity.get_default_version_hostname()):
             abort(401, "Invalid Referer.")
+        settings.endpoint = request.forms.endpoint
         settings.sender_id = request.forms.sender_id
         settings.api_key = request.forms.api_key
         settings.put()
         result = 'Updated successfully'
     return template('setup', result=result,
+                             endpoint=settings.endpoint,
                              sender_id=settings.sender_id,
                              api_key=settings.api_key)
 
@@ -81,7 +87,7 @@ def chat():
     return template_with_sender_id('chat', user_from_get = request.query.get('user') or '')
 
 def template_with_sender_id(*args, **kwargs):
-    settings = Settings.singleton()
+    settings = GcmSettings.singleton()
     if not settings.sender_id or not settings.api_key:
         abort(500, "You need to visit /setup to provide a GCM sender ID and "
                    "corresponding API key")
@@ -99,7 +105,7 @@ def register_chat():
 def register(type):
     """XHR adding a registration ID to our list."""
     if request.forms.registration_id:
-        if request.forms.endpoint != GCM_ENDPOINT:
+        if request.forms.endpoint != DEFAULT_GCM_ENDPOINT:
             abort(500, "Push servers other than GCM are not yet supported.")
 
         registration = Registration.get_or_insert(request.forms.registration_id,
@@ -144,8 +150,8 @@ def send(type, data):
         #"time_to_live": 108,
         #"delay_while_idle": true,
     })
-    settings = Settings.singleton()
-    result = urlfetch.fetch(url=GCM_ENDPOINT,
+    settings = GcmSettings.singleton()
+    result = urlfetch.fetch(url=settings.endpoint,
                             payload=post_data,
                             method=urlfetch.POST,
                             headers={

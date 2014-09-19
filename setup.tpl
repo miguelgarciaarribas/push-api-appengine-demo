@@ -25,6 +25,9 @@
     <p class="result">{{result}}</p>
 %end
     <form method="post">
+        <label>GCM endpoint
+            <input name="endpoint" value="{{endpoint}}">
+        </label>
         <label>GCM sender ID
             <input name="sender_id" value="{{sender_id}}">
         </label>
