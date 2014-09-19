@@ -50,9 +50,6 @@
         #message {
             line-height: 32px;
         }
-        #you-are-logged-in {
-            display: none;
-        }
         #send-form > button {
             width: 48px;
             height: 48px;
@@ -85,7 +82,7 @@
         <div id="workaround-header"></div>
         <div class="action-bar">Team chat</div>
         <pre id="incoming-messages"></pre>
-        <div class="you-are-logged-in" id="you-are-logged-in">You are logged in as <div id="you-are-logged-in-username"></div></div>
+        <div>You are logged in as <div id="you-are-logged-in-username"></div></div>
         <form id="send-form">
             <input type="text" id="message">
             <button></button><span id="send-result"></span><span id="send-resultLink"></span>
@@ -163,9 +160,8 @@
                     $('#username').value = AUTO_REGISTER_USERNAME;
                     joinChat();
                 }
+                $('#you-are-logged-in-username').textContent = $('#username').value;
                 $('#loading-page').style.display = 'none';
-                $('#you-are-logged-in-username').textContent = username;
-                $('#you-are-logged-in').style.display = 'block';
             });
         });
 
@@ -239,6 +235,7 @@
                 return;
             }
             localforage.setItem('username', $('#username').value);
+            $('#you-are-logged-in-username').textContent = $('#username').value;
             $('#login-page').style.opacity = 0;
             setTimeout(function() {
                 $('#login-page').style.display = 'none';
