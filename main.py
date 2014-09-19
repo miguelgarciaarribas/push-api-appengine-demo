@@ -3,7 +3,7 @@
 import json
 import urllib
 import bottle
-from bottle import get, post, abort, template, request, response
+from bottle import get, post, abort, redirect, template, request, response
 from google.appengine.api import app_identity, urlfetch, users
 from google.appengine.ext import ndb
 
@@ -36,15 +36,17 @@ def setup():
     # app.yaml should already have ensured that the user is logged in as admin.
     if not users.is_current_user_admin():
         abort(401, "Sorry, only administrators can access this page.")
+    setup_url = 'https://%s/setup' % app_identity.get_default_version_hostname()
+    if request.url != setup_url:
+        redirect(setup_url)
     result = ""
     settings = GcmSettings.singleton()
     if (request.forms.sender_id and request.forms.api_key and
             request.forms.endpoint):
         # Basic CSRF protection (will block some valid requests, like
         # https://1-dot-johnme-gcm.appspot.com/setup but ohwell).
-        if request.get_header('Referer') != ('https://%s/setup' %
-                app_identity.get_default_version_hostname()):
-            abort(401, "Invalid Referer.")
+        if request.get_header('Referer') != setup_url:
+            abort(403, "Invalid Referer.")
         settings.endpoint = request.forms.endpoint
         settings.sender_id = request.forms.sender_id
         settings.api_key = request.forms.api_key
