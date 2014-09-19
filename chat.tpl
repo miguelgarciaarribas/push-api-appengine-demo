@@ -135,15 +135,15 @@
         var hasServiceWorker = !!navigator.serviceWorker;
         var supportsPush = hasPush && hasNotification && hasServiceWorker;
         if (!supportsPush) {
-            function setBothStatuses(message) {
-                setStatus('join', 'fail', message);
-                setStatus('send', 'fail', message);
+            function setBothStatuses(className, message) {
+                setStatus('join', className, message);
+                setStatus('send', className, message);
             }
             if (!hasPush || !hasServiceWorker) {
                 var whatsMissing = hasPush ? "ServiceWorker" : hasServiceWorker ? "push messaging" : "push messaging or ServiceWorker";
-                setBothStatuses("Your browser does not support " + whatsMissing + "; you won't be able to receive messages.");
+                setBothStatuses('fail', "Your browser does not support " + whatsMissing + "; you won't be able to receive messages.");
             } else if (!hasNotification) {
-                setBothStatuses("Your browser doesn't support notifications; you won't be able to receive messages when the page is not open");
+                setBothStatuses('fail', "Your browser doesn't support notifications; you won't be able to receive messages when the page is not open");
             }
         }
 
