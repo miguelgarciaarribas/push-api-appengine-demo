@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <link rel="icon" type="image/png" href="/static/hangouts.png" sizes="42x42">
     <link href="/static/roboto.css" rel="stylesheet" type="text/css">
+    <link rel="manifest" href="manifest.json">
     <style>
         html, body {
             font-family: 'Roboto', sans-serif;

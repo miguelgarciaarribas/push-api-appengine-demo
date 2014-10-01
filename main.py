@@ -57,6 +57,10 @@ def setup():
                              sender_id=settings.sender_id,
                              api_key=settings.api_key)
 
+@get('/manifest.json')
+def manifest():
+    return { 'gcm_sender_id': GcmSettings.singleton().sender_id }
+
 @get('/stock')
 def stock():
     """Single page stock app. Displays stock data and lets users register."""
