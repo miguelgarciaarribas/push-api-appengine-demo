@@ -1,11 +1,12 @@
 """`main` is the top level module for your Bottle application."""
 
-import json
-import urllib
 import bottle
 from bottle import get, post, abort, redirect, template, request, response
 from google.appengine.api import app_identity, urlfetch, users
 from google.appengine.ext import ndb
+import json
+import os
+import urllib
 
 DEFAULT_GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send'
 
@@ -36,9 +37,14 @@ def setup():
     # app.yaml should already have ensured that the user is logged in as admin.
     if not users.is_current_user_admin():
         abort(401, "Sorry, only administrators can access this page.")
-    setup_url = 'https://%s/setup' % app_identity.get_default_version_hostname()
+
+    is_dev = os.environ.get('SERVER_SOFTWARE', '').startswith('Development')
+    setup_scheme = 'http' if is_dev else 'https'
+    setup_url = '%s://%s/setup' % (setup_scheme,
+                                   app_identity.get_default_version_hostname())
     if request.url != setup_url:
         redirect(setup_url)
+
     result = ""
     settings = GcmSettings.singleton()
     if (request.forms.sender_id and request.forms.api_key and
