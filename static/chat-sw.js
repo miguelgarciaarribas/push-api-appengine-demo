@@ -22,7 +22,9 @@ this.addEventListener('push', function(evt) {
         localforage.setItem('messages', newText);
     });
 
-    self.clients.getServiced().then(function(clients) {
+    if (!self.clients.getAll && self.clients.getServiced)
+        self.clients.getAll = self.clients.getServiced; // Hack for backcompat.
+    self.clients.getAll().then(function(clients) {
         // Only show notification when tab is closed.
         // TODO: Should also show notification when tab is open but not visible.
         if (clients.length == 0)
