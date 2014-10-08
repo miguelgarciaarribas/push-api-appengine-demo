@@ -5,6 +5,7 @@ from bottle import get, post, abort, redirect, template, request, response
 from google.appengine.api import app_identity, urlfetch, users
 from google.appengine.ext import ndb
 import json
+import logging
 import os
 import urllib
 
@@ -172,6 +173,7 @@ def send(type, data):
                             },
                             validate_certificate=True)
     if result.status_code != 200:
+        logging.error("Sending failed:\n" + result.content)
         abort(500, "Sending failed (status code %d)." % result.status_code)
     #return "%d message(s) sent successfully." % len(registration_ids)
     response.status = 202
