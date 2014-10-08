@@ -169,7 +169,8 @@ def send(type, data):
                             headers={
                                 'Content-Type': 'application/json',
                                 'Authorization': 'key=' + settings.api_key,
-                            })
+                            },
+                            validate_certificate=True)
     if result.status_code != 200:
         abort(500, "Sending failed (status code %d)." % result.status_code)
     #return "%d message(s) sent successfully." % len(registration_ids)
