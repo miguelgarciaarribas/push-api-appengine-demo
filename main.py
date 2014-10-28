@@ -69,6 +69,10 @@ def manifest():
     return { 'gcm_sender_id': GcmSettings.singleton().sender_id }
 
 @get('/stock')
+def stock_redirect():
+    redirect("/stock/")
+
+@get('/stock/')
 def stock():
     """Single page stock app. Displays stock data and lets users register."""
     return template_with_sender_id('stock')
@@ -95,6 +99,10 @@ def stock_admin():
     redirect("/stock/admin")
 
 @get('/chat')
+def chat_redirect():
+    redirect("/chat/")
+
+@get('/chat/')
 def chat():
     """Single page chat app."""
     return template_with_sender_id('chat', user_from_get = request.query.get('user') or '')

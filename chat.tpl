@@ -2,9 +2,9 @@
 <html><head>
     <title>Chat App</title>
     <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" href="/static/hangouts.png" sizes="42x42">
     <link href="/static/roboto.css" rel="stylesheet" type="text/css">
-    <link rel="manifest" href="manifest.json">
     <style>
         html, body {
             font-family: 'Roboto', sans-serif;
@@ -181,7 +181,8 @@
                 return;
             }
 
-            navigator.serviceWorker.register('/static/chat-sw.js').then(function(sw) {
+            navigator.serviceWorker.register('/chat/sw.js', { scope: "/chat/" })
+                                   .then(function(sw) {
                 registerForPush();
             }, function(error) {
                 console.error(error);

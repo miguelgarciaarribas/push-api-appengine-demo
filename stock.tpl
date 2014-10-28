@@ -2,6 +2,7 @@
 <html><head>
     <title>Stocks App (SW)</title>
     <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link rel="manifest" href="/manifest.json">
     <style>
         body {
             margin: 5vmin;
@@ -81,7 +82,9 @@
             $('#register-button').disabled = true;
             setStatus('register', '', "");
 
-            navigator.serviceWorker.register('/static/stock-sw.js').then(function(sw) {
+            navigator.serviceWorker.register('/stock/sw.js',
+                                             { scope: "/stock/" })
+                                   .then(function(sw) {
                 registerForPush();
             }, function(error) {
                 console.error(error);

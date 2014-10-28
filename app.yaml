@@ -21,16 +21,26 @@ handlers:
   login: admin
   secure: always
 
+# Only admins can access setup.
+- url: /setup
+  script: main.app
+  login: admin
+  secure: always
+
 # App Engine serves and caches static files contained in the listed directories
 # (and subdirectories). Uncomment and set the directory as needed.
 - url: /static
   static_dir: static
   secure: always
 
-# Only admins can access setup.
-- url: /setup
-  script: main.app
-  login: admin
+- url: /chat/(.+)
+  static_files: static/chat/\1
+  upload: static/chat/.*
+  secure: always
+
+- url: /stock/(.+)
+  static_files: static/stock/\1
+  upload: static/stock/.*
   secure: always
 
 # This handler tells app engine how to route requests to a WSGI application.
