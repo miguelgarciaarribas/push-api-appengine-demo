@@ -1,7 +1,7 @@
 """`main` is the top level module for your Bottle application."""
 
 import bottle
-from bottle import get, post, abort, redirect, template, request, response
+from bottle import get, post, route, abort, redirect, template, request, response
 from google.appengine.api import app_identity, urlfetch, users
 from google.appengine.ext import ndb
 import json
@@ -32,8 +32,7 @@ class Registration(ndb.Model):
     type = ndb.IntegerProperty(required=True, choices=[TYPE_STOCK, TYPE_CHAT])
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
 
-@get('/setup')
-@post('/setup')
+@route('/setup', method=['GET', 'POST'])
 def setup():
     # app.yaml should already have ensured that the user is logged in as admin.
     if not users.is_current_user_admin():
@@ -77,26 +76,13 @@ def stock():
     """Single page stock app. Displays stock data and lets users register."""
     return template_with_sender_id('stock')
 
-@get('/swstock')
-def swstock():
-    """Single page stock app (old version)."""
-    return template_with_sender_id('swstock')
-
-@get('/swstock2')
-def swstock2():
-    """Old path alias."""
-    redirect("/stock")
-
-@get('/admin')
-def admin():
-    """Lets "admins" trigger stock price drops and clear registrations."""
-    # This template doesn't actually use the sender_id, but we want the warning.
-    return template_with_sender_id('admin')
-
 @get('/stock/admin')
 def stock_admin():
-    """Old path alias."""
-    redirect("/stock/admin")
+    """Lets "admins" trigger stock price drops and clear stock registrations."""
+    # Despite the name, this route has no credential checks - don't put anything
+    # sensitive here!
+    # This template doesn't actually use the sender_id, but we want the warning.
+    return template_with_sender_id('stock_admin')
 
 @get('/chat')
 def chat_redirect():
@@ -106,6 +92,18 @@ def chat_redirect():
 def chat():
     """Single page chat app."""
     return template_with_sender_id('chat', user_from_get = request.query.get('user') or '')
+
+@get('/admin')
+def legacy_chat_admin_redirect():
+    redirect("/chat/admin")
+
+@get('/chat/admin')
+def chat_admin():
+    """Lets "admins" clear chat registrations."""
+    # Despite the name, this route has no credential checks - don't put anything
+    # sensitive here!
+    # This template doesn't actually use the sender_id, but we want the warning.
+    return template_with_sender_id('chat_admin')
 
 def template_with_sender_id(*args, **kwargs):
     settings = GcmSettings.singleton()
