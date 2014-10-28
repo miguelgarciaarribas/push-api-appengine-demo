@@ -33,12 +33,12 @@ handlers:
   static_dir: static
   secure: always
 
-- url: /chat/(.+)
+- url: /chat/(.+\..+)
   static_files: static/chat/\1
   upload: static/chat/.*
   secure: always
 
-- url: /stock/(.+)
+- url: /stock/(.+\..+)
   static_files: static/stock/\1
   upload: static/stock/.*
   secure: always
