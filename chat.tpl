@@ -199,11 +199,6 @@
                                           pr.pushRegistrationId);
             }, function(err) {
                 setStatus('join', 'fail', "API call unsuccessful! " + err);
-                // HACK: Force a reload with auto-register enabled, to work
-                // around a bug in Chrome's current Push API implementation,
-                // that makes it require a controlling instead of active SW.
-                location.search = '?user='
-                                + encodeURIComponent($('#username').value);
             });
         }
 
