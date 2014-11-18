@@ -183,10 +183,32 @@
 
             navigator.serviceWorker.register('/chat/sw.js', { scope: "/chat/" })
                                    .then(function(sw) {
-                registerForPush();
+                requestPermission();
             }, function(error) {
                 console.error(error);
                 setStatus('join', 'fail', "SW registration rejected: " + error);
+            });
+        }
+
+        function requestPermission() {
+            if (!hasNotification) {
+                registerForPush();
+                return;
+            }
+            Notification.requestPermission(function(permission) {
+                if (permission == "granted") {
+                    registerForPush();
+                    return;
+                }
+                $('#join-form > button').disabled = false;
+                if (permission == "prompt") {
+                    setStatus('join', 'fail', "Notification permission prompt "
+                                              + "dismissed. Reload to try "
+                                              + "again.");
+                } else if (permission == "denied") {
+                    setStatus('join', 'fail', "Notification permission denied. "
+                                              + "Reset it via Page Info.");
+                }
             });
         }
 
