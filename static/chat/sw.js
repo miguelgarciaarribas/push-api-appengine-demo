@@ -13,8 +13,10 @@ this.addEventListener("activate", function(evt) {
 });
 
 this.addEventListener('push', function(evt) {
-    console.log("SW onpush \"" + evt.data + "\"");
+    console.log("SW onpush", evt.data);
     var usernameAndMessage = evt.data;
+    if (typeof usernameAndMessage == "object")
+        usernameAndMessage = usernameAndMessage.text();
 
     // Store incoming message (clients will read this on load and by polling).
     localforage.getItem('messages').then(function(text) {
