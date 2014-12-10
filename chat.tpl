@@ -154,6 +154,8 @@
                 var AUTO_REGISTER_USERNAME = '{{user_from_get}}';
                 if (username != null) {
                     // We've already registered.
+                    // TODO: Check SW hasn't been unregistered (e.g. because
+                    // user cleared it in chrome://serviceworker-internals).
                     $('#username').value = username;
                     showChatScreen(true);
                 } else if (AUTO_REGISTER_USERNAME) {
