@@ -136,7 +136,7 @@
             setStatus('send', className, message);
         }
         // TODO: Temporary HACK because ToT Chrome doesn't let you feature detect Push.
-        // Should be: var hasPush = !!window.PushRegistration || !!navigator.push;
+        // Should be: var hasPush = !!window.PushManager || !!navigator.push;
         var hasPush = true;
         var hasNotification = !!window.Notification;
         var hasServiceWorker = !!navigator.serviceWorker;
@@ -250,8 +250,10 @@
             var SENDER_ID = '{{sender_id}}';
             pushManager.register(SENDER_ID).then(function(pr) {
                 console.log(JSON.stringify(pr));
-                sendRegistrationToBackend(pr.pushEndpoint,
-                                          pr.pushRegistrationId);
+                // Names changed: https://github.com/w3c/push-api/issues/31
+                var endpoint = pr.endpoint || pr.pushEndpoint;
+                var registrationId = pr.registrationId || pr.pushRegistrationId;
+                sendRegistrationToBackend(endpoint, registrationId);
             }, function(err) {
                 setStatus('join', 'fail', "API call unsuccessful! " + err);
             });

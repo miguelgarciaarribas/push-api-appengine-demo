@@ -63,6 +63,7 @@ function showNotification(usernameAndMessage) {
     } else if (self.Notification) {
         // Boo, only legacy non-persistent notifications are supported. The
         // click event will only be received if the SW happens to stay alive.
+        // TODO: Try postMessage to client and have it show a persistent notf.
         var notification = new Notification(title, options);
         notification.onclick = onLegacyNonPersistentNotificationClick;
     }
