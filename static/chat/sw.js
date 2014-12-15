@@ -48,10 +48,10 @@ function showNotification(usernameAndMessage) {
         icon: '/static/cat.png'
     };
 
-    if (self.registration && registration.showNotification) {
+    if (self.registration && self.registration.showNotification) {
         // Yay, persistent notifications are supported. This SW will be woken up
         // and receive a notificationclick event when it is clicked.
-        registration.showNotification(title, options);
+        self.registration.showNotification(title, options);
     } else if (self.Notification) {
         // Boo, only legacy non-persistent notifications are supported. The
         // click event will only be received if the SW happens to stay alive.
