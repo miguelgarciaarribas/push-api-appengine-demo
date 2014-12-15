@@ -70,14 +70,29 @@ function showNotification(usernameAndMessage) {
 
 this.addEventListener('notificationclick', function(evt) {
     console.log("SW notificationclick");
-    evt.notification.close();
-    // TODO: Enumerate windows, and call window.focus(), or open a new one.
+    handleNotificationClick(evt);
 });
 
 function onLegacyNonPersistentNotificationClick(evt) {
     console.log("SW non-persistent notification onclick");
-    evt.target.close();
-    // TODO: Enumerate windows, and call window.focus(), or open a new one.
+    evt.notification = evt.notification || evt.target;
+    handleNotificationClick(evt);
+}
+
+function handleNotificationClick(evt) {
+    evt.notification.close();
+    // Enumerate windows, and call window.focus(), or open a new one.
+    self.clients.getAll().then(function(clientList) {
+        for (var i = 0; i < clientList.length; i++) {
+            var client = clientList[i];
+            // TODO: Do a better check that the client is suitable.
+            if (client.focus) {
+                client.focus();
+                return;
+            }
+        }
+        // TODO: Open a new window.
+    });
 }
 
 console.log('Logged from inside SW');
