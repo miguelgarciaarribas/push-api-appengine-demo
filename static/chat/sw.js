@@ -2,6 +2,9 @@
 
 importScripts("/static/localforage.js");
 
+if (!self.clients.getAll && self.clients.getServiced)
+    self.clients.getAll = self.clients.getServiced; // Hack for backcompat.
+
 var baseUrl = new URL("/", this.location.href) + "";
 
 this.addEventListener("install", function(evt) {
@@ -25,15 +28,20 @@ this.addEventListener('push', function(evt) {
         localforage.setItem('messages', newText);
     });
 
-    if (!self.clients.getAll && self.clients.getServiced)
-        self.clients.getAll = self.clients.getServiced; // Hack for backcompat.
-    self.clients.getAll().then(function(clients) {
-        // Only show notification when tab is closed.
-        // TODO: Should also show notification when tab is open but not visible.
-        if (clients.length == 0)
+    getClientCount().then(function(count) {
+        // TODO: Better UX if ||true is removed, but this makes testing easier.
+        if (count == 0 || true)
             showNotification(usernameAndMessage);
     });
 });
+
+function getClientCount() {
+    return self.clients.getAll().then(function(clientList) {
+        // Only show notification when tab is closed.
+        // TODO: Should also show notification when tab is open but not visible.
+        return clientList.length;
+    });
+}
 
 function showNotification(usernameAndMessage) {
     var splits = usernameAndMessage.split(/: (.*)/);
