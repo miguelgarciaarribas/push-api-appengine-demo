@@ -13,6 +13,7 @@ this.addEventListener("activate", function(evt) {
 });
 
 this.addEventListener('push', function(evt) {
+    // TODO: Use event.waitUntil to indicate when event handling is complete.
     console.log("SW onpush", evt.data);
     var usernameAndMessage = evt.data;
     if (typeof usernameAndMessage == "object")
@@ -39,18 +40,36 @@ function showNotification(usernameAndMessage) {
     var username = splits[0];
     var message = splits[1];
 
-    var notification = new Notification("Chat from " + username, {
-        serviceWorker: true,
+    var title = "Chat from " + username;
+    var options = {
+        serviceWorker: true, // Legacy, this has been removed from the spec.
         body: message,
         tag: 'chat',
         icon: '/static/cat.png'
-    });
+    };
+
+    if (self.registration && registration.showNotification) {
+        // Yay, persistent notifications are supported. This SW will be woken up
+        // and receive a notificationclick event when it is clicked.
+        registration.showNotification(title, options);
+    } else if (self.Notification) {
+        // Boo, only legacy non-persistent notifications are supported. The
+        // click event will only be received if the SW happens to stay alive.
+        var notification = new Notification(title, options);
+        notification.onclick = onLegacyNonPersistentNotificationClick;
+    }
 }
 
 this.addEventListener('notificationclick', function(evt) {
-    // TODO: notification.close();
     console.log("SW notificationclick");
+    evt.notification.close();
     // TODO: Enumerate windows, and call window.focus(), or open a new one.
 });
+
+function onLegacyNonPersistentNotificationClick(evt) {
+    console.log("SW non-persistent notification onclick");
+    evt.target.close();
+    // TODO: Enumerate windows, and call window.focus(), or open a new one.
+}
 
 console.log('Logged from inside SW');
