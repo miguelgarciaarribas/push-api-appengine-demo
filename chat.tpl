@@ -131,7 +131,7 @@
             console.log(buttonName + " " + className + ": " + text);
         }
 
-        var hasPush = !!navigator.push;
+        var hasPush = !!window.PushRegistration || !!navigator.push;
         var hasNotification = !!window.Notification;
         var hasServiceWorker = !!navigator.serviceWorker;
         var supportsPush = hasPush && hasNotification && hasServiceWorker;
@@ -216,8 +216,30 @@
 
         function registerForPush() {
             console.log("registerForPush");
+            if (navigator.push) {
+                // Legacy API. Never actually shipped by any browsers.
+                doRegister(navigator.push);
+            } else {
+                // Modern API.
+                navigator.serviceWorker.ready.then(function(swr) {
+                    // Protect against the name changing due to https://github.com/w3c/push-api/issues/47
+                    var pushManager = swr.pushManager
+                                   || swr.pushRegistrationManager
+                                   || swr.pushMessaging
+                                   || swr.pushService
+                                   || swr.push;
+                    doRegister(pushManager);
+                });
+            }
+        }
+
+        function doRegister(pushManager) {
+            // The sender ID is no longer part of the API, instead Chrome
+            // obtains it from the manifest's gcm_sender_id property. It's here
+            // just to support testing ancient internal builds of Chrome that
+            // were never shipped to users (newer builds ignore it).
             var SENDER_ID = '{{sender_id}}';
-            navigator.push.register(SENDER_ID).then(function(pr) {
+            pushManager.register(SENDER_ID).then(function(pr) {
                 console.log(JSON.stringify(pr));
                 sendRegistrationToBackend(pr.pushEndpoint,
                                           pr.pushRegistrationId);
