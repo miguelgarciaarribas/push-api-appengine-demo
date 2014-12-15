@@ -65,7 +65,10 @@ def setup():
 
 @get('/manifest.json')
 def manifest():
-    return { 'gcm_sender_id': GcmSettings.singleton().sender_id }
+    return {
+        'gcm_sender_id': GcmSettings.singleton().sender_id,
+        'gcm_user_visible_only': True
+    }
 
 @get('/stock')
 def stock_redirect():
