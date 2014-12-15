@@ -131,15 +131,17 @@
             console.log(buttonName + " " + className + ": " + text);
         }
 
-        var hasPush = !!window.PushRegistration || !!navigator.push;
+        function setBothStatuses(className, message) {
+            setStatus('join', className, message);
+            setStatus('send', className, message);
+        }
+        // TODO: Temporary HACK because ToT Chrome doesn't let you feature detect Push.
+        // Should be: var hasPush = !!window.PushRegistration || !!navigator.push;
+        var hasPush = true;
         var hasNotification = !!window.Notification;
         var hasServiceWorker = !!navigator.serviceWorker;
         var supportsPush = hasPush && hasNotification && hasServiceWorker;
         if (!supportsPush) {
-            function setBothStatuses(className, message) {
-                setStatus('join', className, message);
-                setStatus('send', className, message);
-            }
             if (!hasPush || !hasServiceWorker) {
                 var whatsMissing = hasPush ? "ServiceWorker" : hasServiceWorker ? "push messaging" : "push messaging or ServiceWorker";
                 setBothStatuses('fail', "Your browser does not support " + whatsMissing + "; you won't be able to receive messages.");
@@ -228,7 +230,14 @@
                                    || swr.pushMessaging
                                    || swr.pushService
                                    || swr.push;
-                    doRegister(pushManager);
+                    // TODO: Ideally we wouldn't have to check this here, since
+                    // the hasPush check earlier would guarantee it.
+                    if (!pushManager) {
+                        setBothStatuses('fail', "Your browser does not support push messaging; you won't be able to receive messages.");
+                        showChatScreen(false);
+                    } else {
+                        doRegister(pushManager);
+                    }
                 });
             }
         }
