@@ -23,16 +23,18 @@ this.addEventListener('push', function(evt) {
         usernameAndMessage = usernameAndMessage.text();
 
     // Store incoming message (clients will read this on load and by polling).
-    localforage.getItem('messages').then(function(text) {
+    var messageSaved = localforage.getItem('messages').then(function(text) {
         var newText = (text == null ? "" : text + "\n") + usernameAndMessage;
-        localforage.setItem('messages', newText);
+        return localforage.setItem('messages', newText);
     });
 
-    getClientCount().then(function(count) {
+    var notificationShown = getClientCount().then(function(count) {
         // TODO: Better UX if ||true is removed, but this makes testing easier.
         if (count == 0 || true)
-            showNotification(usernameAndMessage);
+            return showNotification(usernameAndMessage);
     });
+
+    event.waitUntil(Promise.all([messageSaved, notificationShown]));
 });
 
 function getClientCount() {
@@ -59,14 +61,27 @@ function showNotification(usernameAndMessage) {
     if (self.registration && self.registration.showNotification) {
         // Yay, persistent notifications are supported. This SW will be woken up
         // and receive a notificationclick event when it is clicked.
-        self.registration.showNotification(title, options);
+        return self.registration.showNotification(title, options);
     } else if (self.Notification) {
         // Boo, only legacy non-persistent notifications are supported. The
         // click event will only be received if the SW happens to stay alive.
         // TODO: Try postMessage to client and have it show a persistent notf.
-        var notification = new Notification(title, options);
-        notification.onclick = onLegacyNonPersistentNotificationClick;
+        return showLegacyNonPersistentNotification(title, options);
     }
+}
+
+function showLegacyNonPersistentNotification(title, options) {
+    return new Promise(function(resolve, reject) {
+        try {
+            var notification = new Notification(title, options);
+        } catch (ex) {
+            reject(ex);
+            return;
+        }
+        notification.onerror = reject;
+        notification.onshow = function() { resolve(notification); };
+        notification.onclick = onLegacyNonPersistentNotificationClick;
+    });
 }
 
 this.addEventListener('notificationclick', function(evt) {
