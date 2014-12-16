@@ -86,7 +86,7 @@ function showLegacyNonPersistentNotification(title, options) {
 
 this.addEventListener('notificationclick', function(evt) {
     console.log("SW notificationclick");
-    handleNotificationClick(evt);
+    event.waitUntil(handleNotificationClick(evt));
 });
 
 function onLegacyNonPersistentNotificationClick(evt) {
@@ -98,13 +98,12 @@ function onLegacyNonPersistentNotificationClick(evt) {
 function handleNotificationClick(evt) {
     evt.notification.close();
     // Enumerate windows, and call window.focus(), or open a new one.
-    self.clients.getAll().then(function(clientList) {
+    return self.clients.getAll().then(function(clientList) {
         for (var i = 0; i < clientList.length; i++) {
             var client = clientList[i];
             // TODO: Do a better check that the client is suitable.
             if (client.focus) {
-                client.focus();
-                return;
+                return client.focus();
             }
         }
         // TODO: Open a new window.
