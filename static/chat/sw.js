@@ -41,7 +41,7 @@ this.addEventListener('push', function(evt) {
             return showNotification(usernameAndMessage);
     });
 
-    event.waitUntil(Promise.all([messageSaved, notificationShown]));
+    evt.waitUntil(Promise.all([messageSaved, notificationShown]));
 });
 
 function getClientCount() {
@@ -97,7 +97,7 @@ function showLegacyNonPersistentNotification(title, options) {
 
 this.addEventListener('notificationclick', function(evt) {
     console.log("SW notificationclick");
-    event.waitUntil(handleNotificationClick(evt));
+    evt.waitUntil(handleNotificationClick(evt));
 });
 
 function onLegacyNonPersistentNotificationClick(evt) {
