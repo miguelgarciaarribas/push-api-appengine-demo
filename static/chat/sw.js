@@ -75,10 +75,14 @@ function showLegacyNonPersistentNotification(title, options) {
         try {
             var notification = new Notification(title, options);
         } catch (ex) {
+            // Either Notification is not exposed to SW, or is not
+            // constructible, or we lost permission.
             reject(ex);
             return;
         }
         notification.onerror = reject;
+        // TODO: onshow has been removed from the spec; probably better to
+        // assume it will succeed if Notification.permission == "granted"
         notification.onshow = function() { resolve(notification); };
         notification.onclick = onLegacyNonPersistentNotificationClick;
     });
