@@ -22,11 +22,18 @@ this.addEventListener('push', function(evt) {
     if (typeof usernameAndMessage == "object")
         usernameAndMessage = usernameAndMessage.text();
 
+    var messageIsBlank = /^[^:]*: $/.test(usernameAndMessage);
+    if (messageIsBlank)
+        usernameAndMessage += "<empty message, so no notification shown>"
+
     // Store incoming message (clients will read this on load and by polling).
     var messageSaved = localforage.getItem('messages').then(function(text) {
         var newText = (text == null ? "" : text + "\n") + usernameAndMessage;
         return localforage.setItem('messages', newText);
     });
+
+    if (messageIsBlank)
+        return;
 
     var notificationShown = getClientCount().then(function(count) {
         // TODO: Better UX if ||true is removed, but this makes testing easier.
