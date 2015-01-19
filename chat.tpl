@@ -153,16 +153,16 @@
         var usernamePromise = localforage.getItem('username');
         window.addEventListener('DOMContentLoaded', function() {
             usernamePromise.then(function(username) {
-                var AUTO_REGISTER_USERNAME = '{{user_from_get}}';
+                var AUTO_SUBSCRIBE_USERNAME = '{{user_from_get}}';
                 if (username != null) {
-                    // We've already registered.
+                    // We've already subscribed.
                     // TODO: Check SW hasn't been unregistered (e.g. because
                     // user cleared it in chrome://serviceworker-internals).
                     $('#username').value = username;
                     showChatScreen(true);
-                } else if (AUTO_REGISTER_USERNAME) {
-                    // Try to auto-register.
-                    $('#username').value = AUTO_REGISTER_USERNAME;
+                } else if (AUTO_SUBSCRIBE_USERNAME) {
+                    // Try to auto-subscribe.
+                    $('#username').value = AUTO_SUBSCRIBE_USERNAME;
                     joinChat();
                 }
                 $('#you-are-logged-in-username').textContent = $('#username').value;
@@ -196,12 +196,12 @@
 
         function requestPermission() {
             if (!hasNotification) {
-                registerForPush();
+                subscribeForPush();
                 return;
             }
             Notification.requestPermission(function(permission) {
                 if (permission == "granted") {
-                    registerForPush();
+                    subscribeForPush();
                     return;
                 }
                 $('#join-form > button').disabled = false;
@@ -216,11 +216,11 @@
             });
         }
 
-        function registerForPush() {
-            console.log("registerForPush");
+        function subscribeForPush() {
+            console.log("subscribeForPush");
             if (navigator.push) {
                 // Legacy API. Never actually shipped by any browsers.
-                doRegister(navigator.push);
+                doSubscribe(navigator.push);
             } else {
                 // Modern API.
                 navigator.serviceWorker.ready.then(function(swr) {
@@ -236,35 +236,43 @@
                         setBothStatuses('fail', "Your browser does not support push messaging; you won't be able to receive messages.");
                         showChatScreen(false);
                     } else {
-                        doRegister(pushManager);
+                        doSubscribe(pushManager);
                     }
                 });
             }
         }
 
-        function doRegister(pushManager) {
-            // The sender ID is no longer part of the API, instead Chrome
-            // obtains it from the manifest's gcm_sender_id property. It's here
-            // just to support testing ancient internal builds of Chrome that
-            // were never shipped to users (newer builds ignore it).
-            var SENDER_ID = '{{sender_id}}';
-            pushManager.register(SENDER_ID).then(function(pr) {
-                console.log(JSON.stringify(pr));
+        function doSubscribe(pushManager) {
+            var subscriptionPromise;
+            if (pushManager.subscribe) {
+                // Modern API.
+                subscriptionPromise = pushManager.subscribe();
+            } else {
+                // The sender ID is no longer part of the API, instead Chrome
+                // obtains it from the manifest's gcm_sender_id property. It's here
+                // just to support testing ancient internal builds of Chrome that
+                // were never shipped to users (newer builds ignore it).
+                var SENDER_ID = '{{sender_id}}';
+                subscriptionPromise = pushManager.register(SENDER_ID);
+            }
+            subscriptionPromise.then(function(ps) {
+                console.log(JSON.stringify(ps));
                 // Names changed: https://github.com/w3c/push-api/issues/31
-                var endpoint = pr.endpoint || pr.pushEndpoint;
-                var registrationId = pr.registrationId || pr.pushRegistrationId;
-                sendRegistrationToBackend(endpoint, registrationId);
+                var endpoint = ps.endpoint || ps.pushEndpoint;
+                var subscriptionId = ps.subscriptionId || ps.registrationId
+                                     || ps.pushRegistrationId || ps.id;
+                sendSubscriptionToBackend(endpoint, subscriptionId);
             }, function(err) {
                 setStatus('join', 'fail', "API call unsuccessful! " + err);
             });
         }
 
-        function sendRegistrationToBackend(endpoint, registrationId) {
-            console.log("Sending registration to " + location.hostname + "...");
+        function sendSubscriptionToBackend(endpoint, subscriptionId) {
+            console.log("Sending subscription to " + location.hostname + "...");
 
             var formData = new FormData();
             formData.append('endpoint', endpoint);
-            formData.append('registration_id', registrationId);
+            formData.append('subscription_id', subscriptionId);
 
             var xhr = new XMLHttpRequest();
             xhr.onload = function() {
@@ -272,14 +280,14 @@
                     setStatus('join', 'fail', "Server error " + xhr.status
                                               + ": " + xhr.statusText);
                 } else {
-                    setStatus('join', 'success', "Registered.");
+                    setStatus('join', 'success', "Subscribed.");
                     showChatScreen(false);
                 }
             };
             xhr.onerror = xhr.onabort = function() {
-                setStatus('join', 'fail', "Failed to send registration ID!");
+                setStatus('join', 'fail', "Failed to send subscription ID!");
             };
-            xhr.open('POST', '/chat/register');
+            xhr.open('POST', '/chat/subscribe');
             xhr.send(formData);
         }
 

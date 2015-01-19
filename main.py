@@ -120,17 +120,17 @@ def template_with_sender_id(*args, **kwargs):
 def register_stock():
     return register(TYPE_STOCK)
 
-@post('/chat/register')
+@post('/chat/subscribe')
 def register_chat():
     return register(TYPE_CHAT)
 
 def register(type):
     """XHR adding a registration ID to our list."""
-    if request.forms.registration_id:
+    if request.forms.subscription_id:
         if request.forms.endpoint != DEFAULT_GCM_ENDPOINT:
             abort(500, "Push servers other than GCM are not yet supported.")
 
-        registration = Registration.get_or_insert(request.forms.registration_id,
+        registration = Registration.get_or_insert(request.forms.subscription_id,
                                                   type=type)
         registration.put()
     response.status = 201
