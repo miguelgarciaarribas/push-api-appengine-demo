@@ -205,13 +205,15 @@
                     return;
                 }
                 $('#join-form > button').disabled = false;
-                if (permission == "prompt") {
+                if (permission == "denied") {
+                    setStatus('join', 'fail', "Notification permission denied. "
+                                              + "Reset it via Page Info.");
+                } else { // "default"
+                    // This never currently gets triggered in Chrome, due to
+                    // https://crbug.com/434547 :-(
                     setStatus('join', 'fail', "Notification permission prompt "
                                               + "dismissed. Reload to try "
                                               + "again.");
-                } else if (permission == "denied") {
-                    setStatus('join', 'fail', "Notification permission denied. "
-                                              + "Reset it via Page Info.");
                 }
             });
         }
