@@ -16,41 +16,30 @@ this.addEventListener("activate", function(evt) {
 });
 
 this.addEventListener('push', function(evt) {
-    // TODO: Use event.waitUntil to indicate when event handling is complete.
-    console.log("SW onpush", evt.data);
-    var usernameAndMessage = evt.data;
-    if (typeof usernameAndMessage == "object")
-        usernameAndMessage = usernameAndMessage.text();
+    var messagesUrl = "https://johnme-gcm.appspot.com/chat/messages";
+    evt.waitUntil(fetch(messagesUrl).then(function(response) {
+        return response.text();
+    }).then(function(messages) {
+        console.log("SW onpush", messages);
 
-    var messageIsBlank = /^[^:]*: $/.test(usernameAndMessage);
-    if (messageIsBlank)
-        usernameAndMessage += "<empty message, so no notification shown>"
+        var usernameAndMessage = messages.split('\n').pop();
 
-    // Store incoming message (clients will read this on load and by polling).
-    var messageSaved = localforage.getItem('messages').then(function(text) {
-        var newText = (text == null ? "" : text + "\n") + usernameAndMessage;
-        return localforage.setItem('messages', newText);
-    });
+        var messageIsBlank = /^[^:]*: $/.test(usernameAndMessage);
+        if (messageIsBlank)
+            messages += "<empty message, so no notification shown>"
 
-    if (messageIsBlank)
-        return;
+        // Store incoming messages (clients will read this by polling).
+        var savePromise = localforage.setItem('messages', messages);
 
-    var notificationShown = getClientCount().then(function(count) {
-        // TODO: Better UX if ||true is removed, but this makes testing easier.
-        if (count == 0 || true)
-            return showNotification(usernameAndMessage);
-    });
+        if (messageIsBlank)
+            return savePromise;
 
-    evt.waitUntil(Promise.all([messageSaved, notificationShown]));
+        // TODO: Don't show notification if chat tab is open and visible.
+        var notifyPromise = showNotification(usernameAndMessage);
+
+        return Promise.all([savePromise, notifyPromise]);
+    }));    
 });
-
-function getClientCount() {
-    return self.clients.getAll().then(function(clientList) {
-        // Only show notification when tab is closed.
-        // TODO: Should also show notification when tab is open but not visible.
-        return clientList.length;
-    });
-}
 
 function showNotification(usernameAndMessage) {
     var splits = usernameAndMessage.split(/: (.*)/);

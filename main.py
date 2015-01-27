@@ -2,10 +2,12 @@
 
 import bottle
 from bottle import get, post, route, abort, redirect, template, request, response
+import cgi
 from google.appengine.api import app_identity, urlfetch, users
 from google.appengine.ext import ndb
 import json
 import logging
+import re
 import os
 import urllib
 
@@ -31,6 +33,13 @@ class GcmSettings(ndb.Model):
 class Registration(ndb.Model):
     type = ndb.IntegerProperty(required=True, choices=[TYPE_STOCK, TYPE_CHAT])
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
+
+class Message(ndb.Model):
+    creation_date = ndb.DateTimeProperty(auto_now_add=True)
+    text = ndb.StringProperty(indexed=False)
+
+def thread_key(thread_name='default_thread'):
+    return ndb.Key('Thread', thread_name)
 
 @route('/setup', method=['GET', 'POST'])
 def setup():
@@ -96,6 +105,14 @@ def chat():
     """Single page chat app."""
     return template_with_sender_id('chat', user_from_get = request.query.get('user') or '')
 
+@get('/chat/messages')
+def chat_messages():
+    """XHR to fetch the most recent chat messages."""
+    messages = reversed(Message.query(ancestor=thread_key())
+                               .order(-Message.creation_date).fetch(10))
+    return "\n".join(re.sub(r'\r\n|\r|\n', ' ', cgi.escape(m.text))
+                     for m in messages)
+
 @get('/admin')
 def legacy_chat_admin_redirect():
     redirect("/chat/admin")
@@ -158,6 +175,12 @@ def send_chat():
 
 def send(type, data):
     """XHR requesting that we send a push message to all users."""
+    # Store message
+    message = Message(parent=thread_key())
+    message.text = data
+    message.put()
+
+    # Send message
     # TODO: Should limit batches to 1000 registration_ids at a time.
     registration_ids = [r.key.string_id() for r in Registration.query(
                         Registration.type == type).iter()]

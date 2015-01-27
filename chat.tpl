@@ -333,7 +333,16 @@
                 setTimeout(updateText, 100);
             });
         }
-        updateText();
+        function fetchMessages() {
+            var req = new XMLHttpRequest();
+            req.open("GET", "https://johnme-gcm.appspot.com/chat/messages");
+            req.onload = function() {
+                localforage.setItem('messages', req.responseText)
+                           .then(function() { updateText(); });
+            };
+            req.send();
+        }
+        fetchMessages();
 
         $('#send-form').addEventListener('submit', function(evt) {
             evt.preventDefault();
