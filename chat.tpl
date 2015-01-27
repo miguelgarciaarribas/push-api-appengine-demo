@@ -41,6 +41,15 @@
             background-position: 24px center;
             padding-left: 72px;
         }
+        .action-bar > #logout {
+            float: right;
+            padding: 0 24px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
         #join-form, #send-form, #incoming-messages {
             margin: 1em;
         }
@@ -81,7 +90,7 @@
     </section>
     <section id="chat-page">
         <div id="workaround-header"></div>
-        <div class="action-bar">Team chat</div>
+        <div class="action-bar">Team chat<a id="logout">Logout</a></div>
         <pre id="incoming-messages"></pre>
         <div>You are logged in as <div id="you-are-logged-in-username"></div></div>
         <form id="send-form">
@@ -167,6 +176,17 @@
                 }
                 $('#you-are-logged-in-username').textContent = $('#username').value;
                 $('#loading-page').style.display = 'none';
+            });
+        });
+
+        $('#logout').addEventListener('click', function(evt) {
+            navigator.serviceWorker.getRegistration('/chat/').then(function(r) {
+                // Unregistering the SW will also unsubscribe from Push.
+                if (r) return r.unregister();
+            }).then(function() {
+                return localforage.clear();
+            }).then(function() {
+                location.reload();
             });
         });
 
