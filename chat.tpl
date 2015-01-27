@@ -41,8 +41,13 @@
             background-position: 24px center;
             padding-left: 72px;
         }
-        .action-bar > #logout {
+        .action-bar > .action-buttons {
             float: right;
+            font-size: 20px;
+        }
+        .action-bar > .action-buttons > #logout {
+            display: inline-block;
+            cursor: pointer;
             padding: 0 24px;
             color: white;
             font-size: 14px;
@@ -90,9 +95,14 @@
     </section>
     <section id="chat-page">
         <div id="workaround-header"></div>
-        <div class="action-bar">Team chat<a id="logout">Logout</a></div>
+        <div class="action-bar">
+            Team chat
+            <div class="action-buttons">
+                <span id="active-username"></span>
+                <a id="logout">Logout</a>
+            </div>
+        </div>
         <pre id="incoming-messages"></pre>
-        <div>You are logged in as <div id="you-are-logged-in-username"></div></div>
         <form id="send-form">
             <input type="text" id="message">
             <button></button><span id="send-result"></span><span id="send-resultLink"></span>
@@ -174,7 +184,7 @@
                     $('#username').value = AUTO_SUBSCRIBE_USERNAME;
                     joinChat();
                 }
-                $('#you-are-logged-in-username').textContent = $('#username').value;
+                $('#active-username').textContent = $('#username').value;
                 $('#loading-page').style.display = 'none';
             });
         });
@@ -319,7 +329,7 @@
                 return;
             }
             localforage.setItem('username', $('#username').value);
-            $('#you-are-logged-in-username').textContent = $('#username').value;
+            $('#active-username').textContent = $('#username').value;
             $('#login-page').style.opacity = 0;
             setTimeout(function() {
                 $('#login-page').style.display = 'none';
