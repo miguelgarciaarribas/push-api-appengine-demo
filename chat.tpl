@@ -121,6 +121,7 @@
             // the background, the top controls manager can get confused,
             // causing the omnibox to permanently overlap the top 56 pixels of
             // the page. Detect this and work around it with a spacer div.
+            // TODO: Fix this in Chrome!
             console.log("screen.height = " + screen.height);
             console.log("window.outerHeight = " + window.outerHeight);
             if (screen.height - window.outerHeight == 25) {
@@ -154,9 +155,9 @@
             setStatus('join', className, message);
             setStatus('send', className, message);
         }
-        // TODO: Temporary HACK because ToT Chrome doesn't let you feature detect Push.
-        // Should be: var hasPush = !!window.PushManager || !!navigator.push;
-        var hasPush = true;
+        // HACK for very old versions of Chrome: navigator.push has been removed
+        // from the spec.
+        var hasPush = !!window.PushManager || !!navigator.push;
         var hasNotification = !!window.Notification;
         var hasServiceWorker = !!navigator.serviceWorker;
         var supportsPush = hasPush && hasNotification && hasServiceWorker;
@@ -251,48 +252,32 @@
         function subscribeForPush() {
             console.log("subscribeForPush");
             if (navigator.push) {
-                // Legacy API. Never actually shipped by any browsers.
+                // HACK for very old versions of Chrome.
                 doSubscribe(navigator.push);
             } else {
-                // Modern API.
                 navigator.serviceWorker.ready.then(function(swr) {
-                    // Protect against the name changing due to https://github.com/w3c/push-api/issues/47
-                    var pushManager = swr.pushManager
-                                   || swr.pushRegistrationManager
-                                   || swr.pushMessaging
-                                   || swr.pushService
-                                   || swr.push;
                     // TODO: Ideally we wouldn't have to check this here, since
                     // the hasPush check earlier would guarantee it.
-                    if (!pushManager) {
+                    if (!swr.pushManager) {
                         setBothStatuses('fail', "Your browser does not support push messaging; you won't be able to receive messages.");
                         showChatScreen(false);
                     } else {
-                        doSubscribe(pushManager);
+                        doSubscribe(swr.pushManager);
                     }
                 });
             }
         }
 
         function doSubscribe(pushManager) {
-            var subscriptionPromise;
-            if (pushManager.subscribe) {
-                // Modern API.
-                subscriptionPromise = pushManager.subscribe();
-            } else {
-                // The sender ID is no longer part of the API, instead Chrome
-                // obtains it from the manifest's gcm_sender_id property. It's here
-                // just to support testing ancient internal builds of Chrome that
-                // were never shipped to users (newer builds ignore it).
-                var SENDER_ID = '{{sender_id}}';
-                subscriptionPromise = pushManager.register(SENDER_ID);
-            }
-            subscriptionPromise.then(function(ps) {
+            if (!pushManager.subscribe)  // HACK for very old versions of Chrome
+                pushManager.subscribe = pushManager.register;
+            pushManager.subscribe().then(function(ps) {
                 console.log(JSON.stringify(ps));
-                // Names changed: https://github.com/w3c/push-api/issues/31
+                // HACK for very old versions of Chrome: these were renamed
+                // in https://github.com/w3c/push-api/issues/31
                 var endpoint = ps.endpoint || ps.pushEndpoint;
                 var subscriptionId = ps.subscriptionId || ps.registrationId
-                                     || ps.pushRegistrationId || ps.id;
+                                     || ps.pushRegistrationId;
                 sendSubscriptionToBackend(endpoint, subscriptionId);
             }, function(err) {
                 setStatus('join', 'fail', "API call unsuccessful! " + err);

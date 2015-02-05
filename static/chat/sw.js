@@ -2,9 +2,6 @@
 
 importScripts("/static/localforage.js");
 
-if (!self.clients.getAll && self.clients.getServiced)
-    self.clients.getAll = self.clients.getServiced; // Hack for backcompat.
-
 var baseUrl = new URL("/", this.location.href) + "";
 
 this.addEventListener("install", function(evt) {
@@ -48,7 +45,6 @@ function showNotification(usernameAndMessage) {
 
     var title = "Chat from " + username;
     var options = {
-        serviceWorker: true, // Legacy, this has been removed from the spec.
         body: message,
         tag: 'chat',
         icon: '/static/cat.png'
@@ -59,9 +55,10 @@ function showNotification(usernameAndMessage) {
         // and receive a notificationclick event when it is clicked.
         return self.registration.showNotification(title, options);
     } else if (self.Notification) {
-        // Boo, only legacy non-persistent notifications are supported. The
-        // click event will only be received if the SW happens to stay alive.
-        // And we probably won't be allowed to focus/open a tab from it.
+        // HACK for very old versions of Chrome, where, only legacy non-
+        // persistent notifications are supported. The click event will only be
+        // received if the SW happens to stay alive. And we probably won't be
+        // allowed to focus/open a tab from it.
         return showLegacyNonPersistentNotification(title, options);
     }
 }
