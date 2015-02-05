@@ -38,7 +38,7 @@ this.addEventListener('push', function(evt) {
         var notifyPromise = showNotification(usernameAndMessage);
 
         return Promise.all([savePromise, notifyPromise]);
-    }));    
+    }));
 });
 
 function showNotification(usernameAndMessage) {
@@ -61,7 +61,7 @@ function showNotification(usernameAndMessage) {
     } else if (self.Notification) {
         // Boo, only legacy non-persistent notifications are supported. The
         // click event will only be received if the SW happens to stay alive.
-        // TODO: Try postMessage to client and have it show a persistent notf.
+        // And we probably won't be allowed to focus/open a tab from it.
         return showLegacyNonPersistentNotification(title, options);
     }
 }
@@ -98,15 +98,26 @@ function onLegacyNonPersistentNotificationClick(evt) {
 function handleNotificationClick(evt) {
     evt.notification.close();
     // Enumerate windows, and call window.focus(), or open a new one.
-    return self.clients.getAll().then(function(clientList) {
+    return clients.getAll({
+        type: "window",
+        includeUncontrolled: true
+    }).catch(function(ex) {
+        // Chrome doesn't yet support includeUncontrolled:true crbug.com/455241
+        if (ex.name != "NotSupportedError")
+            throw ex;
+        return clients.getAll({
+            type: "window",
+            includeUncontrolled: false
+        });
+    }).then(function(clientList) {
         for (var i = 0; i < clientList.length; i++) {
             var client = clientList[i];
-            // TODO: Do a better check that the client is suitable.
-            if (client.focus) {
+            // TODO: Intelligently choose which client to focus.
+            if (client.focus)
                 return client.focus();
-            }
         }
-        // TODO: Open a new window.
+        if (clients.openWindow)
+            return clients.openWindow("/chat/");
     });
 }
 
