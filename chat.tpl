@@ -49,6 +49,7 @@
             display: inline-block;
             cursor: pointer;
             padding: 0 24px;
+            vertical-align: top;
             color: white;
             font-size: 14px;
             font-weight: bold;
