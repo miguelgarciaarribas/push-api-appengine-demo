@@ -94,6 +94,8 @@ function onLegacyNonPersistentNotificationClick(evt) {
 
 function handleNotificationClick(evt) {
     evt.notification.close();
+    if (!clients.matchAll) // HACK for Chrome versions pre crbug.com/451334
+        clients.matchAll = clients.getAll;
     // Enumerate windows, and call window.focus(), or open a new one.
     return clients.getAll({
         type: "window",
