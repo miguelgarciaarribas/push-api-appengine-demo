@@ -75,8 +75,17 @@ def setup():
 @get('/manifest.json')
 def manifest():
     return {
-        'gcm_sender_id': GcmSettings.singleton().sender_id,
-        'gcm_user_visible_only': True
+        "short_name": "Chat App",
+        "name": "Chat App",
+        "icons": [{
+            "src": "/static/hangouts.png",
+            "sizes": "42x42",
+            "type": "image/png"
+        }],
+        "display": "standalone",
+        "start_url": "/chat/",
+        "gcm_sender_id": GcmSettings.singleton().sender_id,
+        "gcm_user_visible_only": True
     }
 
 @get('/stock')
