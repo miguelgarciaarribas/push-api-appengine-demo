@@ -11,6 +11,7 @@ threadsafe: true
 
 builtins:
 - admin_redirect: on
+- appstats: on
 
 # Handlers define how to route requests to your application.
 handlers:
