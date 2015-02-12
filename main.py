@@ -191,8 +191,8 @@ def send(type, data):
 
     # Send message
     # TODO: Should limit batches to 1000 registration_ids at a time.
-    registration_ids = [r.key.string_id() for r in Registration.query(
-                        Registration.type == type).iter()]
+    registration_ids = [key.string_id() for key in Registration.query(
+                        Registration.type == type).fetch(keys_only=True)]
     if not registration_ids:
         abort(500, "No registered devices.")
     post_data = json.dumps({
