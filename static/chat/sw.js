@@ -97,14 +97,14 @@ function handleNotificationClick(evt) {
     if (!clients.matchAll) // HACK for Chrome versions pre crbug.com/451334
         clients.matchAll = clients.getAll;
     // Enumerate windows, and call window.focus(), or open a new one.
-    return clients.getAll({
+    return clients.matchAll({
         type: "window",
         includeUncontrolled: true
     }).catch(function(ex) {
         // Chrome doesn't yet support includeUncontrolled:true crbug.com/455241
         if (ex.name != "NotSupportedError")
             throw ex;
-        return clients.getAll({
+        return clients.matchAll({
             type: "window",
             includeUncontrolled: false
         });
