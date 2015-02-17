@@ -331,7 +331,7 @@
         }
         function fetchMessages() {
             var req = new XMLHttpRequest();
-            req.open("GET", "https://johnme-gcm.appspot.com/chat/messages");
+            req.open("GET", "/chat/messages");
             req.onload = function() {
                 localforage.setItem('messages', req.responseText)
                            .then(function() { updateText(); });

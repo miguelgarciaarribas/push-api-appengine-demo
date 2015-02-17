@@ -13,7 +13,7 @@ this.addEventListener("activate", function(evt) {
 });
 
 this.addEventListener('push', function(evt) {
-    var messagesUrl = "https://johnme-gcm.appspot.com/chat/messages";
+    var messagesUrl = "/chat/messages";
     evt.waitUntil(fetch(messagesUrl).then(function(response) {
         return response.text();
     }).then(function(messages) {
