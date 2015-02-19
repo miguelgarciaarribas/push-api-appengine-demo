@@ -345,9 +345,12 @@
             console.log("Sending message to " + location.hostname + "...");
             setStatus('send', '', "");
 
+            var message = $('#message').value;
+            message = message.replace(":)", "😃");  // Smiley
+
             var formData = new FormData();
             formData.append('message',
-                $('#username').value + ": " + $('#message').value);
+                $('#username').value + ": " + message);
 
             var xhr = new XMLHttpRequest();
             xhr.onload = function() {
