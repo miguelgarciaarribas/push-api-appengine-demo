@@ -354,11 +354,13 @@
 
             var xhr = new XMLHttpRequest();
             xhr.onload = function() {
+                var statusString = xhr.status + ": " + xhr.statusText;
                 if (('' + xhr.status)[0] != '2') {
-                    setStatus('send', 'fail', "Server error " + xhr.status
-                                              + ": " + xhr.statusText, xhr.responseText);
+                    setStatus('send', 'fail', "Server error " + statusString,
+                              xhr.responseText);
                 } else {
-                    setStatus('send', 'success', "Triggered.");
+                    setStatus('send', 'success', "Sent, status " + statusString,
+                              xhr.responseText);
                     $('#message').value = "";
                 }
             };

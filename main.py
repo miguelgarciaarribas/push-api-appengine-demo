@@ -212,13 +212,16 @@ def send(type, data):
                                 'Content-Type': 'application/json',
                                 'Authorization': 'key=' + settings.api_key,
                             },
-                            validate_certificate=True)
+                            validate_certificate=True,
+                            allow_truncated=True)
     if result.status_code != 200:
-        logging.error("Sending failed:\n" + result.content)
-        abort(500, "Sending failed (status code %d)." % result.status_code)
-    #return "%d message(s) sent successfully." % len(registration_ids)
-    response.status = 202
-    return ""
+        logging.error("Sending failed %d:\n%s" % (result.status_code,
+                                                  result.content))
+    response.status = result.status_code
+    if users.is_current_user_admin():
+        return result.content
+    else:
+        return ""
 
 bottle.run(server='gae', debug=True)
 app = bottle.app()
