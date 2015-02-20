@@ -139,17 +139,23 @@
                 result.textContent = ""; // Don't bother notifying success.
             else
                 result.textContent = " " + text;
-            if (responseText)
-                resultLink.innerHTML = " <a href='data:text/html," + encodeURIComponent(responseText) + "'>(Full message)</a>";
-            else
+            if (responseText) {
+                var mimeType = responseText[0] == '<' ? 'text/html'
+                                                      : 'text/plain';
+                resultLink.innerHTML = " <a href='data:" + mimeType + ","
+                                     + encodeURIComponent(responseText)
+                                     + "'>(Full message)</a>";
+            } else {
                 resultLink.innerHTML = "";
+            }
             if (!text)
                 return;
             result.className = className;
             resultLink.className = className;
             if (buttonName == 'join' && className == 'fail')
                 $('#join-form > button').disabled = false;
-            console.log(buttonName + " " + className + ": " + text);
+            console.log(buttonName + " " + className + ": " + text
+                        + (responseText ? "\n" + responseText : ""));
         }
 
         function setBothStatuses(className, message) {
