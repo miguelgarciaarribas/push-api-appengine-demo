@@ -10,6 +10,8 @@ this.addEventListener("install", function(evt) {
 
 this.addEventListener("activate", function(evt) {
     console.log("SW onactivate");
+    if (clients.claim)
+        evt.waitUntil(clients.claim());
 });
 
 this.addEventListener('push', function(evt) {
