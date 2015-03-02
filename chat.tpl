@@ -165,7 +165,12 @@
         // HACK for very old versions of Chrome: navigator.push has been removed
         // from the spec.
         var hasPush = !!window.PushManager || !!navigator.push;
-        var hasNotification = !!window.Notification;
+        var hasNotification =
+                !!window.ServiceWorkerRegistration &&
+                !!ServiceWorkerRegistration.prototype.showNotification;
+        // HACK for very old versions of Chrome which didn't yet support
+        // showNotification.
+        if (!!window.Notification) hasNotification = true;
         var hasServiceWorker = !!navigator.serviceWorker;
         var supportsPush = hasPush && hasNotification && hasServiceWorker;
         if (!supportsPush) {
