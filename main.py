@@ -13,8 +13,14 @@ import urllib
 
 DEFAULT_GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send'
 
+# Hand-picked from
+# https://developer.android.com/google/gcm/server-ref.html#error-codes
+PERMANENT_GCM_ERRORS = {'InvalidRegistration', 'NotRegistered',
+                        'InvalidPackageName', 'MismatchSenderId'}
+
 TYPE_STOCK = 1
 TYPE_CHAT = 2
+TYPE_CHAT_STALE = 3  # GCM told us the registration was no longer valid.
 
 class GcmSettings(ndb.Model):
     SINGLETON_DATASTORE_KEY = 'SINGLETON'
@@ -31,7 +37,8 @@ class GcmSettings(ndb.Model):
 
 # TODO: Probably cheaper to have a singleton entity with a repeated property?
 class Registration(ndb.Model):
-    type = ndb.IntegerProperty(required=True, choices=[TYPE_STOCK, TYPE_CHAT])
+    type = ndb.IntegerProperty(required=True, choices=[TYPE_STOCK, TYPE_CHAT,
+                                                       TYPE_CHAT_STALE])
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
 
 class Message(ndb.Model):
@@ -172,6 +179,8 @@ def clear_stock_registrations():
 def clear_chat_registrations():
     ndb.delete_multi(Registration.query(Registration.type == TYPE_CHAT)
                                  .fetch(keys_only=True))
+    ndb.delete_multi(Registration.query(Registration.type == TYPE_CHAT_STALE)
+                                 .fetch(keys_only=True))
     return ""
 
 @post('/stock/trigger-drop')
@@ -191,8 +200,9 @@ def send(type, data):
 
     # Send message
     # TODO: Should limit batches to 1000 registration_ids at a time.
-    registration_ids = [key.string_id() for key in Registration.query(
-                        Registration.type == type).fetch(keys_only=True)]
+    registration_keys = Registration.query(Registration.type == type) \
+                                    .fetch(keys_only=True)
+    registration_ids = [key.string_id() for key in registration_keys]
     if not registration_ids:
         abort(500, "No registered devices.")
     post_data = json.dumps({
@@ -217,6 +227,17 @@ def send(type, data):
     if result.status_code != 200:
         logging.error("Sending failed %d:\n%s" % (result.status_code,
                                                   result.content))
+    try:
+        stale_keys = []
+        for i, res in enumerate(json.loads(result.content)['results']):
+            if 'error' in res and res['error'] in PERMANENT_GCM_ERRORS:
+                stale_keys.append(registration_keys[i])
+        stale_registrations = ndb.get_multi(stale_keys)
+        for registration in stale_registrations:
+            registration.type = TYPE_CHAT_STALE
+        ndb.put_multi(stale_registrations)
+    except:
+        logging.exception("Failed to cull stale registrations")
     response.status = result.status_code
     if users.is_current_user_admin():
         return result.content
