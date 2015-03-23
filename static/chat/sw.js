@@ -52,54 +52,14 @@ function showNotification(usernameAndMessage) {
         icon: '/static/cat.png'
     };
 
-    if (self.registration && self.registration.showNotification) {
-        // Yay, persistent notifications are supported. This SW will be woken up
-        // and receive a notificationclick event when it is clicked.
-        return self.registration.showNotification(title, options);
-    } else if (self.Notification) {
-        // HACK for very old versions of Chrome, where, only legacy non-
-        // persistent notifications are supported. The click event will only be
-        // received if the SW happens to stay alive. And we probably won't be
-        // allowed to focus/open a tab from it.
-        return showLegacyNonPersistentNotification(title, options);
-    }
-}
-
-function showLegacyNonPersistentNotification(title, options) {
-    return new Promise(function(resolve, reject) {
-        try {
-            var notification = new Notification(title, options);
-        } catch (ex) {
-            // Either Notification is not exposed to SW, or is not
-            // constructible, or we lost permission.
-            reject(ex);
-            return;
-        }
-        notification.onerror = reject;
-        // TODO: onshow has been removed from the spec; probably better to
-        // assume it will succeed if Notification.permission == "granted"
-        notification.onshow = function() { resolve(notification); };
-        notification.onclick = onLegacyNonPersistentNotificationClick;
-    });
+    return self.registration.showNotification(title, options);
 }
 
 this.addEventListener('notificationclick', function(evt) {
     console.log("SW notificationclick");
-    evt.waitUntil(handleNotificationClick(evt));
-});
-
-function onLegacyNonPersistentNotificationClick(evt) {
-    console.log("SW non-persistent notification onclick");
-    evt.notification = evt.notification || evt.target;
-    handleNotificationClick(evt);
-}
-
-function handleNotificationClick(evt) {
     evt.notification.close();
-    if (!clients.matchAll) // HACK for Chrome versions pre crbug.com/451334
-        clients.matchAll = clients.getAll;
     // Enumerate windows, and call window.focus(), or open a new one.
-    return clients.matchAll({
+    evt.waitUntil(clients.matchAll({
         type: "window",
         includeUncontrolled: true
     }).catch(function(ex) {
@@ -119,7 +79,7 @@ function handleNotificationClick(evt) {
         }
         if (clients.openWindow)
             return clients.openWindow("/chat/");
-    });
-}
+    }));
+});
 
 console.log('Logged from inside SW');

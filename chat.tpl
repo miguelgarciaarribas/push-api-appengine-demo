@@ -162,15 +162,10 @@
             setStatus('join', className, message);
             setStatus('send', className, message);
         }
-        // HACK for very old versions of Chrome: navigator.push has been removed
-        // from the spec.
-        var hasPush = !!window.PushManager || !!navigator.push;
+        var hasPush = !!window.PushManager;
         var hasNotification =
                 !!window.ServiceWorkerRegistration &&
                 !!ServiceWorkerRegistration.prototype.showNotification;
-        // HACK for very old versions of Chrome which didn't yet support
-        // showNotification.
-        if (!!window.Notification) hasNotification = true;
         var hasServiceWorker = !!navigator.serviceWorker;
         var supportsPush = hasPush && hasNotification && hasServiceWorker;
         if (!supportsPush) {
@@ -178,7 +173,7 @@
                 var whatsMissing = hasPush ? "ServiceWorker" : hasServiceWorker ? "push messaging" : "push messaging or ServiceWorker";
                 setBothStatuses('fail', "Your browser does not support " + whatsMissing + "; you won't be able to receive messages.");
             } else if (!hasNotification) {
-                setBothStatuses('fail', "Your browser doesn't support notifications; you won't be able to receive messages when the page is not open");
+                setBothStatuses('fail', "Your browser doesn't support showing notifications from a Service Worker; you won't be able to receive messages when the page is not open");
             }
         }
 
@@ -265,34 +260,22 @@
 
         function subscribeForPush() {
             console.log("subscribeForPush");
-            if (navigator.push) {
-                // HACK for very old versions of Chrome.
-                doSubscribe(navigator.push);
-            } else {
-                navigator.serviceWorker.ready.then(function(swr) {
-                    // TODO: Ideally we wouldn't have to check this here, since
-                    // the hasPush check earlier would guarantee it.
-                    if (!swr.pushManager) {
-                        setBothStatuses('fail', "Your browser does not support push messaging; you won't be able to receive messages.");
-                        showChatScreen(false);
-                    } else {
-                        doSubscribe(swr.pushManager);
-                    }
-                });
-            }
+            navigator.serviceWorker.ready.then(function(swr) {
+                // TODO: Ideally we wouldn't have to check this here, since
+                // the hasPush check earlier would guarantee it.
+                if (!swr.pushManager) {
+                    setBothStatuses('fail', "Your browser does not support push messaging; you won't be able to receive messages.");
+                    showChatScreen(false);
+                } else {
+                    doSubscribe(swr.pushManager);
+                }
+            });
         }
 
         function doSubscribe(pushManager) {
-            if (!pushManager.subscribe)  // HACK for very old versions of Chrome
-                pushManager.subscribe = pushManager.register;
             pushManager.subscribe().then(function(ps) {
                 console.log(JSON.stringify(ps));
-                // HACK for very old versions of Chrome: these were renamed
-                // in https://github.com/w3c/push-api/issues/31
-                var endpoint = ps.endpoint || ps.pushEndpoint;
-                var subscriptionId = ps.subscriptionId || ps.registrationId
-                                     || ps.pushRegistrationId;
-                sendSubscriptionToBackend(endpoint, subscriptionId);
+                sendSubscriptionToBackend(ps.endpoint, ps.subscriptionId);
             }, function(err) {
                 setStatus('join', 'fail', "API call unsuccessful! " + err);
             });

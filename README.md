@@ -5,10 +5,8 @@ messages to web browsers.
 
 Live version: https://johnme-gcm.appspot.com/chat/
 
-Currently requires Chrome with "Enable experimental Web Platform features"
-enabled in chrome://flags. As other browsers land support for the Push API, this
-repository will be updated, and should start working with flag-less Chrome,
-Firefox, etc.
+Currently requires Chrome 42+. As other browsers land support for the Push API,
+this repository will be updated, and should start working with Firefox etc.
 
 See [requirements.txt][1] for instructions on installing dependencies, if you
 want to run your own copy on App Engine.
