@@ -5,10 +5,12 @@ from bottle import get, post, route, abort, redirect, template, request, respons
 import cgi
 from google.appengine.api import app_identity, urlfetch, users
 from google.appengine.ext import ndb
+from google.appengine.ext.ndb import msgprop
 import json
 import logging
 import re
 import os
+from protorpc import messages
 import urllib
 
 DEFAULT_GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send'
@@ -18,9 +20,10 @@ DEFAULT_GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send'
 PERMANENT_GCM_ERRORS = {'InvalidRegistration', 'NotRegistered',
                         'InvalidPackageName', 'MismatchSenderId'}
 
-TYPE_STOCK = 1
-TYPE_CHAT = 2
-TYPE_CHAT_STALE = 3  # GCM told us the registration was no longer valid.
+class RegistrationType(messages.Enum):
+    STOCK = 1
+    CHAT = 2
+    CHAT_STALE = 3  # GCM told us the registration was no longer valid.
 
 class GcmSettings(ndb.Model):
     SINGLETON_DATASTORE_KEY = 'SINGLETON'
@@ -37,8 +40,7 @@ class GcmSettings(ndb.Model):
 
 # TODO: Probably cheaper to have a singleton entity with a repeated property?
 class Registration(ndb.Model):
-    type = ndb.IntegerProperty(required=True, choices=[TYPE_STOCK, TYPE_CHAT,
-                                                       TYPE_CHAT_STALE])
+    type = msgprop.EnumProperty(RegistrationType, required=True, indexed=True)
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
 
 class Message(ndb.Model):
@@ -155,11 +157,11 @@ def template_with_sender_id(*args, **kwargs):
 
 @post('/stock/register')
 def register_stock():
-    return register(TYPE_STOCK)
+    return register(RegistrationType.STOCK)
 
 @post('/chat/subscribe')
 def register_chat():
-    return register(TYPE_CHAT)
+    return register(RegistrationType.CHAT)
 
 def register(type):
     """XHR adding a registration ID to our list."""
@@ -175,25 +177,28 @@ def register(type):
 
 @post('/stock/clear-registrations')
 def clear_stock_registrations():
-    ndb.delete_multi(Registration.query(Registration.type == TYPE_STOCK)
-                                 .fetch(keys_only=True))
+    ndb.delete_multi(
+            Registration.query(Registration.type == RegistrationType.STOCK)
+                        .fetch(keys_only=True))
     return ""
 
 @post('/chat/clear-registrations')
 def clear_chat_registrations():
-    ndb.delete_multi(Registration.query(Registration.type == TYPE_CHAT)
-                                 .fetch(keys_only=True))
-    ndb.delete_multi(Registration.query(Registration.type == TYPE_CHAT_STALE)
-                                 .fetch(keys_only=True))
+    ndb.delete_multi(
+            Registration.query(Registration.type == RegistrationType.CHAT)
+                        .fetch(keys_only=True))
+    ndb.delete_multi(
+            Registration.query(Registration.type == RegistrationType.CHAT_STALE)
+                        .fetch(keys_only=True))
     return ""
 
 @post('/stock/trigger-drop')
 def send_stock():
-    return send(TYPE_STOCK, '["May", 183]')
+    return send(RegistrationType.STOCK, '["May", 183]')
 
 @post('/chat/send')
 def send_chat():
-    return send(TYPE_CHAT, request.forms.message)
+    return send(RegistrationType.CHAT, request.forms.message)
 
 def send(type, data):
     """XHR requesting that we send a push message to all users."""
@@ -238,7 +243,7 @@ def send(type, data):
                 stale_keys.append(registration_keys[i])
         stale_registrations = ndb.get_multi(stale_keys)
         for registration in stale_registrations:
-            registration.type = TYPE_CHAT_STALE
+            registration.type = RegistrationType.CHAT_STALE
         ndb.put_multi(stale_registrations)
     except:
         logging.exception("Failed to cull stale registrations")
