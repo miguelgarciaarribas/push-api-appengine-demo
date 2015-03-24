@@ -25,6 +25,10 @@ class RegistrationType(messages.Enum):
     CHAT = 2
     CHAT_STALE = 3  # GCM told us the registration was no longer valid.
 
+class PushService(messages.Enum):
+    GCM = 1
+    FIREFOX = 2  # SimplePush
+
 class GcmSettings(ndb.Model):
     SINGLETON_DATASTORE_KEY = 'SINGLETON'
 
@@ -38,9 +42,12 @@ class GcmSettings(ndb.Model):
     sender_id = ndb.StringProperty(default="", indexed=False)
     api_key = ndb.StringProperty(default="", indexed=False)
 
-# TODO: Probably cheaper to have a singleton entity with a repeated property?
+# The key of a GCM Registration entity is the push subscription ID;
+# the key of a Firefox Registration entity is the push endpoint URL.
+# If more push services are added, consider namespacing keys to avoid collision.
 class Registration(ndb.Model):
     type = msgprop.EnumProperty(RegistrationType, required=True, indexed=True)
+    service = msgprop.EnumProperty(PushService, required=True, indexed=True)
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
 
 class Message(ndb.Model):
@@ -165,13 +172,22 @@ def register_chat():
 
 def register(type):
     """XHR adding a registration ID to our list."""
-    if request.forms.subscription_id:
-        if request.forms.endpoint != DEFAULT_GCM_ENDPOINT:
-            abort(500, "Push servers other than GCM are not yet supported.")
+    if not request.forms.endpoint:
+        abort(400, "Missing endpoint")
 
+    if request.forms.endpoint == DEFAULT_GCM_ENDPOINT:
+        if not request.forms.subscription_id:
+            abort(400, "Missing subscription_id")
         registration = Registration.get_or_insert(request.forms.subscription_id,
-                                                  type=type)
-        registration.put()
+                                                  type=type,
+                                                  service=PushService.GCM)
+    else:
+        # Assume unknown endpoints are Firefox Simple Push.
+        # TODO: Find a better way of distinguishing these.
+        registration = Registration.get_or_insert(request.forms.endpoint,
+                                                  type=type,
+                                                  service=PushService.FIREFOX)
+    registration.put()
     response.status = 201
     return ""
 
@@ -207,13 +223,76 @@ def send(type, data):
     message.text = data
     message.put()
 
-    # Send message
-    # TODO: Should limit batches to 1000 registration_ids at a time.
-    registration_keys = Registration.query(Registration.type == type) \
-                                    .fetch(keys_only=True)
-    registration_ids = [key.string_id() for key in registration_keys]
+    gcm_stats = sendGCM(type, data)
+    firefox_stats = sendFirefox(type, data)
+
+    if gcm_stats.total_count + firefox_stats.total_count \
+            != Registration.query(Registration.type == type).count():
+        # Migrate old registrations that don't yet have a service property;
+        # they'll miss this message, but at least they'll work next time.
+        # TODO: Remove this after a while.
+        registrations = Registration.query(Registration.type == type).fetch()
+        registrations = [r for r in registrations if r.service == None]
+        for r in registrations:
+            r.service = PushService.GCM
+        ndb.put_multi(registrations)
+
+    if gcm_stats.success_count + firefox_stats.success_count == 0:
+        if gcm_stats.total_count + firefox_stats.total_count == 0:
+            abort(500, "No devices are registered to receive messages")
+        else:
+            abort(500, "Failed to send message to any of the %d registered "
+                       "devices" % failure_total)
+
+    response.status = 201
+    return "Message sent successfully to %d/%d GCM devices and %d/%d Firefox " \
+           "devices%s%s" % (gcm_stats.success_count, gcm_stats.total_count,
+                            firefox_stats.success_count,
+                            firefox_stats.total_count,
+                            gcm_stats.text, firefox_stats.text)
+
+class SendStats:
+    success_count = 0
+    total_count = 0
+    text = ""
+
+def sendFirefox(type, data):
+    firefox_registration_keys = \
+            Registration.query(Registration.type == type,
+                               Registration.service == PushService.FIREFOX) \
+                        .fetch(keys_only=True)
+    push_endpoints = [key.string_id() for key in firefox_registration_keys]
+
+    stats = SendStats()
+    stats.total_count = len(push_endpoints)
+    if not push_endpoints:
+        return stats
+
+    for endpoint in push_endpoints:
+        result = urlfetch.fetch(url=endpoint,
+                                payload="",
+                                method=urlfetch.PUT)
+        if result.status_code == 200:
+            stats.success_count += 1
+        else:
+            logging.error("Firefox send failed %d:\n%s" % (result.status_code,
+                                                           result.content))
+        # TODO: Deal with stale connections.
+    return stats
+
+def sendGCM(type, data):
+    gcm_registration_keys = \
+            Registration.query(Registration.type == type,
+                               Registration.service == PushService.GCM) \
+                        .fetch(keys_only=True)
+    registration_ids = [key.string_id() for key in gcm_registration_keys]
+
+    stats = SendStats()
+    stats.total_count = len(registration_ids)
     if not registration_ids:
-        abort(500, "No registered devices.")
+        return stats
+
+    # TODO: Should limit batches to 1000 registration_ids at a time.
     post_data = json.dumps({
         'registration_ids': registration_ids,
         'data': {
@@ -234,24 +313,31 @@ def send(type, data):
                             validate_certificate=True,
                             allow_truncated=True)
     if result.status_code != 200:
-        logging.error("Sending failed %d:\n%s" % (result.status_code,
-                                                  result.content))
+        logging.error("GCM send failed %d:\n%s" % (result.status_code,
+                                                   result.content))
+        return stats
+
     try:
-        stale_keys = []
-        for i, res in enumerate(json.loads(result.content)['results']):
-            if 'error' in res and res['error'] in PERMANENT_GCM_ERRORS:
-                stale_keys.append(registration_keys[i])
-        stale_registrations = ndb.get_multi(stale_keys)
-        for registration in stale_registrations:
-            registration.type = RegistrationType.CHAT_STALE
-        ndb.put_multi(stale_registrations)
+        result_json = json.loads(result.content)
+        stats.success_count = result_json['success']
+        if users.is_current_user_admin():
+            stats.text = '\n\n' + result.content
     except:
-        logging.exception("Failed to cull stale registrations")
-    response.status = result.status_code
-    if users.is_current_user_admin():
-        return result.content
-    else:
-        return ""
+        logging.exception("Failed to decode GCM JSON response")
+        return stats
+
+    # Stop sending messages to registrations that GCM tells us are stale.
+    stale_keys = []
+    for i, res in enumerate(result_json['results']):
+        if 'error' in res and res['error'] in PERMANENT_GCM_ERRORS:
+            stale_keys.append(gcm_registration_keys[i])
+    stale_registrations = ndb.get_multi(stale_keys)
+    for registration in stale_registrations:
+        registration.type = RegistrationType.CHAT_STALE
+    ndb.put_multi(stale_registrations)
+
+    return stats
+
 
 bottle.run(server='gae', debug=True)
 app = bottle.app()

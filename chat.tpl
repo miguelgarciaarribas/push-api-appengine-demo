@@ -144,7 +144,7 @@
                                                              : 'text/plain';
                 resultLink.innerHTML = " <a href='data:" + mimeType + ","
                                      + encodeURIComponent(responseText)
-                                     + "'>(Full message)</a>";
+                                     + "'>(Debug info)</a>";
             } else {
                 resultLink.innerHTML = "";
             }
