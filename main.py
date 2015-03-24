@@ -112,6 +112,10 @@ def stock_admin():
     # This template doesn't actually use the sender_id, but we want the warning.
     return template_with_sender_id('stock_admin')
 
+@get('/')
+def root_redirect():
+    redirect("/chat/")
+
 @get('/chat')
 def chat_redirect():
     redirect("/chat/")
