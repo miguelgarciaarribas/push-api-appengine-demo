@@ -196,6 +196,8 @@
                     // Try to auto-subscribe.
                     $('#username').value = AUTO_SUBSCRIBE_USERNAME;
                     joinChat();
+                } else {
+                    $('#username').focus();
                 }
                 $('#active-username').textContent = $('#username').value;
                 $('#loading-page').style.display = 'none';
@@ -321,6 +323,7 @@
         }
 
         function showChatScreen(immediate) {
+            $('#message').focus();
             if (immediate) {
                 $('#login-page').style.display = 'none';
                 return;
