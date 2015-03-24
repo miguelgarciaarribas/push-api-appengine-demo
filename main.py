@@ -21,7 +21,7 @@ PERMANENT_GCM_ERRORS = {'InvalidRegistration', 'NotRegistered',
                         'InvalidPackageName', 'MismatchSenderId'}
 
 class RegistrationType(messages.Enum):
-    STOCK = 1
+    LEGACY = 1
     CHAT = 2
     CHAT_STALE = 3  # GCM told us the registration was no longer valid.
 
@@ -104,23 +104,6 @@ def manifest():
         "gcm_user_visible_only": True
     }
 
-@get('/stock')
-def stock_redirect():
-    redirect("/stock/")
-
-@get('/stock/')
-def stock():
-    """Single page stock app. Displays stock data and lets users register."""
-    return template_with_sender_id('stock')
-
-@get('/stock/admin')
-def stock_admin():
-    """Lets "admins" trigger stock price drops and clear stock registrations."""
-    # Despite the name, this route has no credential checks - don't put anything
-    # sensitive here!
-    # This template doesn't actually use the sender_id, but we want the warning.
-    return template_with_sender_id('stock_admin')
-
 @get('/')
 def root_redirect():
     redirect("/chat/")
@@ -162,10 +145,6 @@ def template_with_sender_id(*args, **kwargs):
     kwargs['sender_id'] = settings.sender_id
     return template(*args, **kwargs)
 
-@post('/stock/register')
-def register_stock():
-    return register(RegistrationType.STOCK)
-
 @post('/chat/subscribe')
 def register_chat():
     return register(RegistrationType.CHAT)
@@ -191,13 +170,6 @@ def register(type):
     response.status = 201
     return ""
 
-@post('/stock/clear-registrations')
-def clear_stock_registrations():
-    ndb.delete_multi(
-            Registration.query(Registration.type == RegistrationType.STOCK)
-                        .fetch(keys_only=True))
-    return ""
-
 @post('/chat/clear-registrations')
 def clear_chat_registrations():
     ndb.delete_multi(
@@ -207,10 +179,6 @@ def clear_chat_registrations():
             Registration.query(Registration.type == RegistrationType.CHAT_STALE)
                         .fetch(keys_only=True))
     return ""
-
-@post('/stock/trigger-drop')
-def send_stock():
-    return send(RegistrationType.STOCK, '["May", 183]')
 
 @post('/chat/send')
 def send_chat():
