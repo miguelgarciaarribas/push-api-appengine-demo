@@ -140,8 +140,8 @@
             else
                 result.textContent = " " + text;
             if (responseText) {
-                var mimeType = /^\s*</.test(responseText[0]) ? 'text/html'
-                                                             : 'text/plain';
+                var mimeType = /^\s*</.test(responseText) ? 'text/html'
+                                                          : 'text/plain';
                 resultLink.innerHTML = " <a href='data:" + mimeType + ","
                                      + encodeURIComponent(responseText)
                                      + "'>(Debug info)</a>";
