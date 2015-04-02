@@ -263,12 +263,18 @@ def sendGCM(type, data):
     # TODO: Should limit batches to 1000 registration_ids at a time.
     post_data = json.dumps({
         'registration_ids': registration_ids,
-        'data': {
-            'data': data,  #request.forms.msg,
-        },
-        #"collapse_key": "score_update",
-        #"time_to_live": 108,
-        #"delay_while_idle": true,
+        # Chrome doesn't yet support receiving data https://crbug.com/434808
+        # (this is blocked on standardizing an encryption format).
+        # Hence it's optimal to use collapse_key so device only gets woken up
+        # once if multiple messages are sent whilst the device is offline (when
+        # the Service Worker asks us what has changed since it last synced, by
+        # fetching /chat/messages, it'll get all the new messages).
+        #'data': {
+        #    'data': data,  #request.forms.msg,
+        #},
+        'collapse_key': str(type),
+        #'time_to_live': 108,
+        #'delay_while_idle': true,
     })
     settings = GcmSettings.singleton()
     result = urlfetch.fetch(url=settings.endpoint,
