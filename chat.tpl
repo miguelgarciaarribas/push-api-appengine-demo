@@ -1,6 +1,6 @@
 <!doctype html>
 <html><head>
-    <title>Chat App</title>
+    <title>My Chat App</title>
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" href="/static/hangouts.png" sizes="42x42">
@@ -88,7 +88,7 @@
 </head><body>
     <section id="loading-page"></section>
     <section id="login-page">
-        <div class="action-bar">Team chat</div>
+        <div class="action-bar">My Team chat</div>
         <form id="join-form">
             <label>Username: <input type="text" id="username"></label><br>
             <button>Join chatroom</button><span id="join-result"></span><span id="join-resultLink"></span>
@@ -97,7 +97,7 @@
     <section id="chat-page">
         <div id="workaround-header"></div>
         <div class="action-bar">
-            Team chat
+            My Team chat
             <div class="action-buttons">
                 <span id="active-username"></span>
                 <a id="logout">Logout</a>
