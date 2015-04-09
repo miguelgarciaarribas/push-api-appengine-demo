@@ -1,12 +1,12 @@
 import sys
 sys.path.append('./lib')
-import feedparser
-import parser
+from soccer_parser import SoccerProvider, SoccerResult
 
 
 def main():
- world_soccer = feedparser.parse('http://sports.yahoo.com/soccer//rss.xml')
- parser.getSoccerResults(world_soccer)
+ provider = SoccerProvider()
+ results = provider.fetch_results('http://sports.yahoo.com/soccer//rss.xml')
+ print results
 
 
 if __name__ == "__main__":

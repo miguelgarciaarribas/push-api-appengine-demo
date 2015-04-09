@@ -6,12 +6,12 @@ import cgi
 from google.appengine.api import app_identity, urlfetch, users
 from google.appengine.ext import ndb
 from google.appengine.ext.ndb import msgprop
-import feedparser
 import json
 import logging
 import re
 import os
 from protorpc import messages
+from soccer_parser import SoccerProvider, SoccerResult
 import urllib
 
 DEFAULT_GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send'
@@ -88,6 +88,11 @@ def setup():
                              endpoint=settings.endpoint,
                              sender_id=settings.sender_id,
                              api_key=settings.api_key)
+@get('/feed/soccer')
+def feedSoccer():
+  provider = SoccerProvider()
+  results = provider.fetch_results('http://sports.yahoo.com/soccer//rss.xml')
+  return "<p>This should be working... </p>" + str(results)
 
 @get('/manifest.json')
 def manifest():
