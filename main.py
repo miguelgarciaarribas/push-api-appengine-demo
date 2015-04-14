@@ -10,6 +10,7 @@ import json
 import logging
 import re
 import os
+import soccer_feed_handler
 from protorpc import messages
 from soccer_parser import SoccerProvider, SoccerResult
 import urllib
@@ -90,8 +91,9 @@ def setup():
                              api_key=settings.api_key)
 @get('/feed/soccer')
 def feedSoccer():
-  provider = SoccerProvider()
-  results = provider.fetch_results('http://sports.yahoo.com/soccer//rss.xml')
+  #provider = SoccerProvider()
+  #results = provider.fetch_results('http://sports.yahoo.com/soccer//rss.xml')
+  results = soccer_feed_handler.soccer_feed_request()
   return "<p>This should be working... </p>" + str(results)
 
 @get('/manifest.json')
