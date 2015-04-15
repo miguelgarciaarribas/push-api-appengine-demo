@@ -16,20 +16,20 @@ class SoccerEvent(ndb.Model):
 
 def soccer_feed_request():
   provider = SoccerProvider()
-  results = provider.fetch_results('http://sports.yahoo.com/soccer//rss.xml')
+  results = provider.fetch_results('test/feed2.xml') # 'http://sports.yahoo.com/soccer//rss.xml'
 
-  for result in results:
-    print result.league()
-    # event_day_key  = ndb.Key(EventDay, "13/04/2015")
-    # event = SoccerEvent(parent=event_day_key)
-    # event.league = result.league
-    # event.home_team = result.home_team
-    # event.visitor_team = result.visitor_team
-    # event.home_score = result.home_score
-    # event.visitor_score = result.visitor_score
-    # event.put()
-    # print event
-  return results
+  for league in results:
+    for result in league:
+      event_day_key  = ndb.Key(EventDay, "14/04/2015")
+      event = SoccerEvent(parent=event_day_key)
+      event.league = result.league
+      event.home_team = result.home_team
+      event.visitor_team = result.visitor_team
+      event.home_score = int(result.home_score)
+      event.visitor_score = int(result.visitor_score)
+      event.put()
+      print event
+    return results
 
 
 if __name__ == "__main__":

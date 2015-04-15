@@ -13,8 +13,6 @@ class SoccerResult:
     self.visitor_team = visitor_team
     self.home_score = home_score
     self.visitor_score = visitor_score
-  def league():
-    return self.league
   def __repr__(self):
     return "(" + self.league + ")" + self.home_team + ":" + self.home_score + " - " \
         + self.visitor_team + ":" + self.visitor_score
