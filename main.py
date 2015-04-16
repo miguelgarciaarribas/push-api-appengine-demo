@@ -10,6 +10,7 @@ import json
 import logging
 import re
 import os
+import soccer_display_handler
 import soccer_feed_handler
 from protorpc import messages
 from soccer_parser import SoccerProvider, SoccerResult
@@ -95,6 +96,16 @@ def feedSoccer():
   #results = provider.fetch_results('http://sports.yahoo.com/soccer//rss.xml')
   results = soccer_feed_handler.soccer_feed_request()
   return "<p>This should be working... </p>" + str(results)
+
+@get('/collect/soccer')
+def feedSoccer():
+  results = soccer_display_handler.display_results(14, 4, 2015)
+  return results
+
+@get('/display/soccer')
+def feedSoccer():
+  return template('soccer', user_from_get = 'hello')
+
 
 @get('/manifest.json')
 def manifest():

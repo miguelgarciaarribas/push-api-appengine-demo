@@ -1,0 +1,78 @@
+html, body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+}
+#loading-page {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: white;
+    z-index: 2;
+}
+#login-page {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: white;
+    opacity: 1;
+    transition: opacity 0.5s;
+}
+#workaround-header {
+    display: none;
+    height: 56px;
+    background-color: #0a7e07;
+}
+.action-bar {
+    background-color: #243e9b;
+    color: white;
+
+    line-height: 64px;
+    font-size: 24px;
+
+    background-image: url("/static/hamburger.svg");
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    background-position: 24px center;
+    padding-left: 72px;
+}
+.action-bar > .action-buttons {
+    float: right;
+    font-size: 20px;
+}
+.action-bar > .action-buttons > #logout {
+    display: inline-block;
+    cursor: pointer;
+    padding: 0 24px;
+    vertical-align: top;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+#join-form, #send-form, #incoming-messages {
+    margin: 1em;
+}
+#join-form, #join-form *, #send-form, #send-form *, #incoming-messages {
+    font-size: 16px;
+    vertical-align: middle;
+}
+#message {
+    line-height: 32px;
+}
+#send-form > button {
+    width: 48px;
+    height: 48px;
+    background: url(/static/send.png);
+    background-size: contain;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+.success {
+    color: green;
+    font-style: italic;
+}
+.fail {
+    color: red;
+    font-style: italic;
+    font-weight: bold;
+}
