@@ -18,6 +18,8 @@
         href="../components/core-toolbar/core-toolbar.html">
   <link rel="import"
         href="../components/paper-tabs/paper-tabs.html">
+  <link rel="import" href="post-list.html">
+  <link rel="import" href="../sports_components/kinda-button.html">
 
   <style>
   html,body {
@@ -56,7 +58,7 @@
     -ms-user-select: none;
     user-select: none;
     text-transform: uppercase;
-}
+  }
   </style>
 
 </head>
@@ -66,25 +68,34 @@
 <core-header-panel>
 
   <core-toolbar>
-    <paper-tabs id="tabs" selected="all" self-end>
-    <paper-tab name="all">All</paper-tab>
-    <paper-tab name="favorites">Favorites</paper-tab>
-    <paper-tab name="help">Help</paper-tab>
-  </paper-tabs>
+    <event-tabs id="tabs" selected="help" self-end>
+      <paper-tab name="all">All</paper-tab>
+      <paper-tab name="favorites">Favorites</paper-tab>
+      <paper-tab name="help">Help</paper-tab>
+    </event-tabs>
   </core-toolbar>
 
-  <!-- main page content will go here -->
+
+  <div class="container" layout vertical center>
+    <post-list show="all"></post-list>
+  </div>
+
 
 </core-header-panel>
+
 <script>
-  var tabs = document.querySelector('paper-tabs');
+  var tabs = document.querySelector('event-tabs');
+  var list = document.querySelector('post-list');
+  var node = document.createElement("P");
+  node.text = "YO!!!";
+  tabs.appendChild(node);
 
   tabs.addEventListener('core-select', function() {
-    console.log("Selected: " + tabs.selected);
+    list.show = tabs.selected;
   });
 </script>
 
-
+fillTabs();
 </body>
 
 </html>

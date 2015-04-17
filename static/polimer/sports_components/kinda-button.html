@@ -1,0 +1,87 @@
+<link rel="import"
+      href="../components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../components/core-selector/core-selector.html">
+
+<polymer-element name="event-selector" extends="core-selector">
+  <template>
+    <!-- A shadow element renders the extended
+         element's shadow DOM here. -->
+    <shadow>
+    </shadow>
+  </template>
+  <p name="he" id="yo"> HOI </p>
+  <script>
+    Polymer("event-selector");
+  </script>
+</polymer-element>
+
+
+<polymer-element name="event-tabs" extends="paper-tabs">
+  <template>
+    <!-- A shadow element renders the extended
+         element's shadow DOM here. -->
+    <shadow>
+    </shadow>
+  <p name="he" id="yo"> HOI </p>
+  <p name="he2" id="yo2"> HOI2 </p>
+  </template>
+  <script>
+    Polymer("event-tabs");
+   <!--  var fillTabs = function() { -->
+   <!--    var tabs = document.querySelector('tabs'); -->
+   <!--    var node1 = document.createElement("p"); -->
+   <!--    node1.text = "Hello"; -->
+   <!--    tabs.appendChild(node1); -->
+   <!--    var node2 = document.createElement("p"); -->
+   <!--    node2.text = "Bye"; -->
+   <!--   tabs.appendChild(node2); -->
+   <!--  } -->
+   <!-- fillTabs(); -->
+  </script>
+</polymer-element>
+
+
+
+<!-- USELSS CRAP -->
+
+<polymer-element name="kinda-button" noscript>
+  <template>
+    <span><content></content></span>
+  </template>
+</polymer-element>
+
+
+<polymer-element name="icon-button" extends="kinda-button">
+  <template>
+    <span>
+      <i class="icon"></i><shadow></shadow>
+    </span>
+  </template>
+  <script>
+    Polymer('icon-button');
+  </script>
+</polymer-element>
+
+<polymer-element name="polymer-cool">
+  <template>
+    You are {{praise}} <content></content>!
+  </template>
+  <script>
+    Polymer({
+      praise: 'cool'
+    });
+  </script>
+</polymer-element>
+
+<polymer-element name="polymer-cooler" extends="polymer-cool">
+  <template>
+    <!-- A shadow element renders the extended
+         element's shadow DOM here. -->
+    <shadow></shadow> <!-- "You are cool Matt" -->
+  </template>
+  <script>
+    Polymer({
+      praise: 'really cool'
+    });
+  </script>
+</polymer-element>
