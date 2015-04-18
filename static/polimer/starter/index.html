@@ -68,6 +68,14 @@
 <core-header-panel>
 
   <core-toolbar>
+    <event-selector id="select" self-end>
+      <paper-tab name="all">All</paper-tab>
+      <paper-tab name="favorites">Favorites</paper-tab>
+      <paper-tab name="help">Help</paper-tab>   
+    </event-selector>
+  </core-toolbar>
+
+  <core-toolbar>
     <event-tabs id="tabs" selected="help" self-end>
       <paper-tab name="all">All</paper-tab>
       <paper-tab name="favorites">Favorites</paper-tab>
@@ -79,7 +87,7 @@
   <div class="container" layout vertical center>
     <post-list show="all"></post-list>
   </div>
-
+  <input type=button id="but" value="Add Tabs"/> 
 
 </core-header-panel>
 
@@ -93,6 +101,16 @@
   tabs.addEventListener('core-select', function() {
     list.show = tabs.selected;
   });
+  var but = document.getElementById("but");
+  but.addEventListener('click', function() {
+    // var sel = document.getElementById("select");
+    var sel = document.getElementById("tabs");
+    var node = document.createElement("paper-tab");
+    var text = document.createTextNode("wow");
+    node.appendChild(text);
+    sel.appendChild(node);
+  });
+
 </script>
 
 fillTabs();
