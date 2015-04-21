@@ -1,0 +1,34 @@
+<link rel="import" href="../core/components/polymer/polymer.html">
+<link rel="import" href="post-card.html">
+
+<polymer-element name="soccer-results" attributes="results">
+  <template>
+    <style>
+    :host {
+      display: block;
+      width: 100%;
+    }
+    post-card {
+      margin-bottom: 30px;
+    }
+    </style>
+
+    <post-service id="service" posts="{{posts}}">
+    </post-service>
+    
+    <div layout vertical center>
+
+      <template repeat="{{result in results}}">
+        <post-card>
+          <!--  <img src="{{post.avatar}}" width="70" height="70"> -->
+          <h2>{{post.home_team}}</h2>
+          <p>{{post.visitor_team}}</p>
+        </post-card>
+      </template>
+      
+    </div>
+  </template>
+  <script>
+  Polymer("soccer-results");
+  </script>
+</polymer-element>

@@ -1,0 +1,31 @@
+<link rel="import" href="../core/components/polymer/polymer.html">
+<link rel="import" href="soccer-result.html">
+
+<polymer-element name="soccer-results" attributes="results">
+  <template>
+    <style>
+    :host {
+      display: block;
+      width: 100%;
+    }
+    post-card {
+      margin-bottom: 30px;
+    }
+    </style>
+    
+    <div layout vertical center>
+
+      <template repeat="{{result in results}}">
+        <soccer-result>
+          <!--  <img src="{{post.avatar}}" width="70" height="70"> -->
+          <h2>{{post.home_team}}</h2>
+          <p>{{post.visitor_team}}</p>
+        </soccer-result>
+      </template>
+      
+    </div>
+  </template>
+  <script>
+  Polymer("soccer-results");
+  </script>
+</polymer-element>
