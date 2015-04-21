@@ -1,0 +1,18 @@
+<link rel="import"
+      href="../components/paper-tabs/paper-tabs.html">
+
+
+<polymer-element name="sports-tabs" extends="paper-tabs">
+  <template>
+    <!-- A shadow element renders the extended
+         element's shadow DOM here. -->
+    <shadow>
+    </shadow>
+  </template>
+  <script>
+    Polymer("sports-tabs");
+  </script>
+</polymer-element>
+
+
+
