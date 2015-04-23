@@ -99,7 +99,7 @@ def feedSoccer():
 
 @get('/collect/soccer')
 def feedSoccer():
-  results = soccer_display_handler.display_results(14, 4, 2015)
+  results = soccer_display_handler.display_results(20, 4, 2015)
   return results
 
 @get('/display/soccer')

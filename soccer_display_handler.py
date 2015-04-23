@@ -13,4 +13,4 @@ def display_results(day, month, year):
       "visitor_score" : soccer_event.visitor_score
       }
     scores.append(result)
-  return { "scores" : scores }
+  return { "20/04/2015" : scores, "21/04/2015" : scores  }

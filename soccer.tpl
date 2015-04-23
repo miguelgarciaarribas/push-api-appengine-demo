@@ -20,8 +20,8 @@
     <sports-tabs id="tabs" self-end>
     </sports-tabs>
   </core-toolbar>
-  <input type=button id="but" value="Add Tabs"/> 
-  <div id="soccer-results"> </div>
+
+  <div id="result-elements"> </div>
     <script>
     var $ = document.querySelector.bind(document);
     // Fetch scores related messages
@@ -31,7 +31,7 @@
         req.onload = function() {
             var results = JSON.parse(req.responseText);
             console.log(results);
-            $('#soccer-results').textContent = results;
+            // $('#result-elements').textContent = results;
             //localforage.setItem('messages', req.responseText)
             //           .then(function() { updateText(); });
         };
@@ -54,27 +54,27 @@
        return weekday[(date.getDay())] + "/" + date.getDate();
     }
 
-    var but = document.getElementById("but");
-    but.addEventListener('click', function() {
-        for (i = -4; i <= 5; i++) {
-	    var node = document.createElement("paper-tab");
-            node.id = formatDate(i);
-	    var text = document.createTextNode(formatDate(i));
-	    node.appendChild(text);
-            $('#tabs').appendChild(node);
-        }  
-        $('#tabs').selected = formatDate(0);
-        var result = document.createElement("soccer-result");
-        result.innerHTML = "<h2> REal Madrid</h2> <p> Hello </p>";
-        var result2 = document.createElement("soccer-result");
-        result.innerHTML = "<h2> Atl Madrid </h2> <p> Hello </p>";
-        var results = document.createElement("soccer-results");
-        results.id = "myresult";
-        results.results = [result, result2];
-        $('#soccer-results').appendChild(results);
-    });
+    function createTabs() {
+      for (i = -4; i <= 5; i++) {
+	var node = document.createElement("paper-tab");
+        node.id = formatDate(i);
+	var text = document.createTextNode(formatDate(i));
+	node.appendChild(text);
+        $('#tabs').appendChild(node);
+      }
+      $('#tabs').selected = formatDate(0);
+      var result = document.createElement("soccer-result");
+      result.innerHTML = "<h2> REal Madrid</h2> <p> Hello </p>";
+      var result2 = document.createElement("soccer-result");
+      result.innerHTML = "<h2> Atl Madrid </h2> <p> Hello </p>";
+      var results = document.createElement("soccer-results");
+      results.id = "myresult";
+      results.results = result;
+      $('#result-elements').appendChild(results);
+    }
 
     fetchScores();
+    createTabs();
     </script>
 
 </body></html>
