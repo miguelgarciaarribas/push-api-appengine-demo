@@ -1,0 +1,13 @@
+<link rel="import" href="../core/components/polymer/polymer.html">
+<polymer-element name="polymer-letters">  
+  <template>
+    <template repeat="&#123;{ letter in letters }}">
+      &#123;{ letter }}
+    </template>
+  </template>
+  <script>
+    Polymer('polymer-letters', {
+      letters: ['a', 'b', 'c']
+    });
+  </script>
+</polymer-element> 
