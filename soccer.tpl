@@ -22,6 +22,7 @@
   </core-toolbar>
 
   <div id="result-elements"> </div>
+  <div id="single-result"> </div>
     <script>
     var $ = document.querySelector.bind(document);
     // Fetch scores related messages
@@ -63,14 +64,19 @@
         $('#tabs').appendChild(node);
       }
       $('#tabs').selected = formatDate(0);
-      var result = document.createElement("soccer-result");
-      result.innerHTML = "<h2> REal Madrid</h2> <p> Hello </p>";
+      var result1 = document.createElement("soccer-result");
+      result1.innerHTML = "<h2> REal Madrid</h2> <p> Hello </p>";
       var result2 = document.createElement("soccer-result");
-      result.innerHTML = "<h2> Atl Madrid </h2> <p> Hello </p>";
+      result2.innerHTML = "<h2> Atl Madrid </h2> <p> Hello </p>";
       var results = document.createElement("soccer-results");
       results.id = "myresult";
-      results.results = result;
+      results.results = [result1, result2];
       $('#result-elements').appendChild(results);
+
+      var result3 = document.createElement("soccer-result");
+      result3.innerHTML = "<h2> EIBAR </h2> <p> Hello </p>";
+      $('#single-result').appendChild(result3);
+
     }
 
     fetchScores();

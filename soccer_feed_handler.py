@@ -4,7 +4,7 @@ from soccer_feed_model import EventDay, SoccerEvent
 
 def soccer_feed_request():
   provider = SoccerProvider()
-  results = provider.fetch_results('http://sports.yahoo.com/soccer/rss.xml')
+  results = provider.fetch_results('test/feed2.xml') #''http://sports.yahoo.com/soccer/rss.xml')
 
   for league in results:
     for result in league:
