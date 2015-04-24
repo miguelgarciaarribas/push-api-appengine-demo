@@ -18,14 +18,14 @@
       <template repeat="{{result in results}}">
         <soccer-result>
           <!--  <img src="{{post.avatar}}" width="70" height="70"> -->
-          <h2>{{post.home_team}}</h2>
-          <p>{{post.visitor_team}}</p>
+          <h2>{{result.home_team}}</h2>
+          <p>{{result.visitor_team}}</p>
         </soccer-result>
       </template>
 
     </div>
   </template>
   <script>
-  Polymer({});
+  Polymer("soccer-results");
   </script>
 </polymer-element>

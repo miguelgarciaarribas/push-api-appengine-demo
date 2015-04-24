@@ -22,21 +22,23 @@
   </core-toolbar>
 
   <div id="result-elements"> </div>
-  <div id="single-result"> </div>
-    <script>
+  <script>
     var $ = document.querySelector.bind(document);
     // Fetch scores related messages
     function fetchScores() {
+      var promise = new Promise(function(resolve, reject) {
         var req = new XMLHttpRequest();
         req.open("GET", "/collect/soccer");
         req.onload = function() {
-            var results = JSON.parse(req.responseText);
-            console.log(results);
-            // $('#result-elements').textContent = results;
-            //localforage.setItem('messages', req.responseText)
-            //           .then(function() { updateText(); });
+          if (req.status != 200) {
+            reject("Error");
+          }
+          var results = JSON.parse(req.responseText);
+          resolve(results);
         };
         req.send();
+      });
+      return promise;
     }
 
     function formatDate(decalage) {
@@ -55,7 +57,9 @@
        return weekday[(date.getDay())] + "/" + date.getDate();
     }
 
-    function createTabs() {
+    function createTabs(result) {
+      console.log("results");
+      console.log(result);
       for (i = -4; i <= 5; i++) {
 	var node = document.createElement("paper-tab");
         node.id = formatDate(i);
@@ -64,23 +68,22 @@
         $('#tabs').appendChild(node);
       }
       $('#tabs').selected = formatDate(0);
-      var result1 = document.createElement("soccer-result");
-      result1.innerHTML = "<h2> REal Madrid</h2> <p> Hello </p>";
-      var result2 = document.createElement("soccer-result");
-      result2.innerHTML = "<h2> Atl Madrid </h2> <p> Hello </p>";
+
       var results = document.createElement("soccer-results");
       results.id = "myresult";
-      results.results = [result1, result2];
+      results.results = result;
       $('#result-elements').appendChild(results);
 
       var result3 = document.createElement("soccer-result");
-      result3.innerHTML = "<h2> EIBAR </h2> <p> Hello </p>";
-      $('#single-result').appendChild(result3);
 
     }
 
-    fetchScores();
-    createTabs();
+    fetchScores().then(function(result) {
+      createTabs(result["20/04/2015"]);
+    }, function(err) {
+      alert("Error " + err);
+    });
+
     </script>
 
 </body></html>
