@@ -1,14 +1,15 @@
 from google.appengine.ext import ndb
 from soccer_parser import SoccerProvider, SoccerResult
 from soccer_feed_model import EventDay, SoccerEvent
+import soccer_util
 
 def soccer_feed_request():
   provider = SoccerProvider()
-  results = provider.fetch_results('test/feed2.xml') #''http://sports.yahoo.com/soccer/rss.xml')
+  results = provider.fetch_results('http://sports.yahoo.com/soccer/rss.xml')
 
   for league in results:
     for result in league:
-      event_day_key  = ndb.Key(EventDay, "20/04/2015")
+      event_day_key  = ndb.Key(EventDay, soccer_util.format_today_key())
       event = SoccerEvent(parent=event_day_key)
       event.league = result.league
       event.home_team = result.home_team

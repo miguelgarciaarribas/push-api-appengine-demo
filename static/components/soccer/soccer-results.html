@@ -18,8 +18,10 @@
       <template repeat="{{result in results}}">
         <soccer-result>
           <!--  <img src="{{post.avatar}}" width="70" height="70"> -->
-          <h2>{{result.home_team}}</h2>
-          <p>{{result.visitor_team}}</p>
+          <h2 id="home">{{result.home_team}}</h2>
+          <h3 id="home_score">{{result.home_score}}</h3>
+          <h2 id="visitor">{{result.visitor_team}}</h2>
+          <h3 id="visitor_score" class="result">{{result.visitor_score}}</h2>
         </soccer-result>
       </template>
 

@@ -9,7 +9,7 @@
       position: relative;
       background-color: white;
       padding: 20px;
-      width: 100%;
+      width: 50%;
       font-size: 1.2rem;
       font-weight: 300;
     }
@@ -28,14 +28,20 @@
       border-radius: 50%;
       margin: 10px;
     }
+    h3 ::content {
+      color : red;
+    }
     </style>
     <div class="card-header" layout horizontal center>
-      <content select="img"></content>
-      <content select="h2"></content>
+      <!-- <content select="img"></content> -->
+      <content select="#home"></content>&nbsp;
+      <content class="result" select="#home_score"></content>
+      &nbsp;-&nbsp;
+      <content select="#visitor"></content>&nbsp;
+      <content select="#visitor_score"></content>
     </div>
-    <content></content>
   </template>
   <script>
-  Polymer("soccer-result");
+  Polymer({});
   </script>
 </polymer-element<>
