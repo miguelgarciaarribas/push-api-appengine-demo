@@ -25,14 +25,18 @@
   <script>
     var $ = document.querySelector.bind(document);
     // Fetch scores related messages
-    function fetchScores() {
+    function fetchScores(day, month, year) {
       var promise = new Promise(function(resolve, reject) {
         var req = new XMLHttpRequest();
-        req.open("GET", "/collect/soccer");
+        var today = new Date()
+        req.open("GET", "/collect/soccer?day=" + day +
+                  "&month=" + month +
+                  "&year=" + year);
         req.onload = function() {
           if (req.status != 200) {
             reject("Error");
           }
+	  console.log(req.responseText);
           var results = JSON.parse(req.responseText);
           resolve(results);
         };
@@ -41,7 +45,7 @@
       return promise;
     }
 
-    function formatDate(decalage) {
+    function formatDate(date) {
 	var weekday = new Array(7);
 	weekday[0]=  "SUN";
 	weekday[1] = "MON";
@@ -51,38 +55,58 @@
 	weekday[5] = "FRI";
 	weekday[6] = "SAT";
 
-       var today = new Date();
-       var date = new Date(today.getFullYear(), today.getMonth(),
-                           today.getDate() + decalage, 0, 0, 0, 0);
-       return weekday[(date.getDay())] + "/" + date.getDate();
+	return weekday[(date.getDay())] + "/" + date.getDate();
     }
+
+    function getDate(decalage) {
+       var today = new Date();
+       return new Date(today.getFullYear(), today.getMonth(),
+                       today.getDate() + decalage, 0, 0, 0, 0);
+    }
+  
 
     function createTabs(result) {
       console.log("results");
       console.log(result);
       for (i = -4; i <= 5; i++) {
 	var node = document.createElement("paper-tab");
-        node.id = formatDate(i);
-	var text = document.createTextNode(formatDate(i));
+	var date = getDate(i);
+	var printDate = formatDate(date);
+        node.id = printDate;
+        node.day = date.getDate();
+	node.month = date.getMonth() +1;
+	node.year = date.getFullYear();
+	var text = document.createTextNode(printDate);
 	node.appendChild(text);
+        node.addEventListener("click", function(e) {
+	    fetchAndDisplay(e.target.day, e.target.month, e.target.year)});
         $('#tabs').appendChild(node);
       }
-      $('#tabs').selected = formatDate(0);
+      $('#tabs').selected = formatDate(getDate(0));
+    }
 
+    function fillTab(result) {
+      console.log(result);
       var results = document.createElement("soccer-results");
       results.id = "myresult";
       results.results = result;
-      $('#result-elements').appendChild(results);
-
-      var result3 = document.createElement("soccer-result");
-
+      var node = $('#result-elements');
+      while (node.firstChild) {
+	  node.removeChild(node.firstChild);
+      } 
+      node.appendChild(results);
     }
 
-    fetchScores().then(function(result) {
-      createTabs(result["20/04/2015"]);
-    }, function(err) {
-      alert("Error " + err);
-    });
+    function fetchAndDisplay(day, month, year) {
+	fetchScores(day, month, year).then(function(result) {
+	    fillTab(result["laliga"])
+	}, function(err) {
+	    alert("Error " + err);
+	});	
+    }
+
+    createTabs(); 
+    fetchAndDisplay(30, 4, 2015);
 
     </script>
 

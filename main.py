@@ -6,6 +6,7 @@ import cgi
 from google.appengine.api import app_identity, urlfetch, users
 from google.appengine.ext import ndb
 from google.appengine.ext.ndb import msgprop
+import datetime
 import json
 import logging
 import re
@@ -92,15 +93,15 @@ def setup():
                              api_key=settings.api_key)
 @get('/feed/soccer')
 def feedSoccer():
-  #provider = SoccerProvider()
-  #results = provider.fetch_results('http://sports.yahoo.com/soccer//rss.xml')
   results = soccer_feed_handler.soccer_feed_request()
   return "<p>This should be working... </p>" + str(results)
 
 @get('/collect/soccer')
 def feedSoccer():
-  results = soccer_display_handler.display_results(20, 4, 2015)
-  return results
+  day = request.query.get('day') or datetime.datetime.now().day
+  month = request.query.get('month') or datetime.datetime.now().month
+  year = request.query.get('year') or datetime.datetime.now().year
+  return soccer_display_handler.display_results(day, month, year)
 
 @get('/display/soccer')
 def feedSoccer():

@@ -9,7 +9,10 @@ def soccer_feed_request():
 
   for league in results:
     for result in league:
-      event_day_key  = ndb.Key(EventDay, soccer_util.format_today_key())
+      date = soccer_util.format_month_day_key(result.date)
+      if date == "":
+        continue
+      event_day_key  = ndb.Key(EventDay, date)
       event = SoccerEvent(parent=event_day_key)
       event.league = result.league
       event.home_team = result.home_team

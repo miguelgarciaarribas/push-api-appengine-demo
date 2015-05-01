@@ -7,15 +7,16 @@ TEAM_RESULT_RE = "\s(\d+?)(\s|$)"
 
 
 class SoccerResult:
-  def __init__(self, league, home_team, visitor_team, home_score, visitor_score):
+  def __init__(self, date, league, home_team, visitor_team, home_score, visitor_score):
+    self.date = date
     self.league = league
     self.home_team = home_team
     self.visitor_team = visitor_team
     self.home_score = home_score
     self.visitor_score = visitor_score
   def __repr__(self):
-    return "(" + self.league + ")" + self.home_team + ":" + self.home_score + " - " \
-        + self.visitor_team + ":" + self.visitor_score
+    return "(" + self.league + "/" + self.date + ")" + self.home_team + ":" \
+        + self.home_score + " - " + self.visitor_team + ":" + self.visitor_score
 
 
 class SoccerProvider:
@@ -39,9 +40,10 @@ class SoccerProvider:
     results = []
     for piece in pieces:
       match = re.search(DATE_SCORES_RE, piece)
-      results.append(match.group(2))
+      results.append((match.group(1), match.group(2)))
     for result in results:
-      team_results = re.split(TEAM_RESULT_RE, result)
+      team_results = re.split(TEAM_RESULT_RE, result[1])
+      date = result[0]
       league = "La Liga"
       home_team = ""
       home_score = -1
@@ -59,7 +61,8 @@ class SoccerProvider:
           visitor_score = team_result
 
         if (home_team and home_score != -1 and visitor_team and visitor_score != -1):
-          soccer_results.append(SoccerResult(league, home_team, visitor_team, home_score, visitor_score))
+          soccer_results.append(SoccerResult(date, league, home_team, visitor_team,
+                                             home_score, visitor_score))
           home_team = ""
           visitor_team = ""
           home_score = -1
