@@ -20,7 +20,7 @@ class SoccerResult:
 
 
 class SoccerProvider:
-  def fetch_results(self, feed_url):  # 'http://sports.yahoo.com/soccer//rss.xml'
+  def fetch_results(self, feed_url):
     world_soccer_feed = feedparser.parse(feed_url)
     return self._collect_results(world_soccer_feed)
 

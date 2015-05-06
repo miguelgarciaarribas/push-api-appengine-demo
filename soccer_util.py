@@ -18,5 +18,15 @@ def format_month_day_key(date):
     return ""
   except: return ""
 
+def extract_date(date):
+  """
+  Return a date from a parsed soccer feed
 
-
+  returned as a triple (day, month, year) or None if unable to parse it.
+  """
+  try:
+    month,day = date.split(" ")
+    if month in _months:
+      return (day, _months.index(month) + 1, datetime.datetime.now().year)
+    return None
+  except: return None
