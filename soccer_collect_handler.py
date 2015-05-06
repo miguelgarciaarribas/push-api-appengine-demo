@@ -1,11 +1,9 @@
 from google.appengine.ext import ndb
 from soccer_feed_model import EventDay, SoccerEvent
-import soccer_util
+import soccer_feed_model
 
 def display_results(day, month, year):
-  date = soccer_util.format_key(day, month, year)
-  event_day_key  = ndb.Key(EventDay, date)
-  messages = SoccerEvent.query(ancestor=event_day_key).fetch(20)
+  messages = soccer_feed_model.get_soccer_results(day, month, year)
   scores = []
   for soccer_event in messages:
     result = {

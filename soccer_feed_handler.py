@@ -20,7 +20,6 @@ def soccer_feed_request():
       event.home_score = int(result.home_score)
       event.visitor_score = int(result.visitor_score)
       event.put()
-      print event
     return results
 
 

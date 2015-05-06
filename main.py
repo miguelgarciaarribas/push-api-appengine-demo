@@ -11,7 +11,7 @@ import json
 import logging
 import re
 import os
-import soccer_display_handler
+import soccer_collect_handler
 import soccer_feed_handler
 from protorpc import messages
 from soccer_parser import SoccerProvider, SoccerResult
@@ -101,7 +101,7 @@ def feedSoccer():
   day = request.query.get('day') or datetime.datetime.now().day
   month = request.query.get('month') or datetime.datetime.now().month
   year = request.query.get('year') or datetime.datetime.now().year
-  return soccer_display_handler.display_results(day, month, year)
+  return soccer_collect_handler.display_results(day, month, year)
 
 @get('/display/soccer')
 def feedSoccer():
