@@ -28,6 +28,13 @@ handlers:
   login: admin
   secure: always
 
+# Cron related urls, only admins can access them.
+
+- url : /feed/soccer
+  login: admin
+  script: main.app
+  secure: always
+
 # App Engine serves and caches static files contained in the listed directories
 # (and subdirectories). Uncomment and set the directory as needed.
 - url: /static

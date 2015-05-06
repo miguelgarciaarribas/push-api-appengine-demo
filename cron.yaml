@@ -1,0 +1,4 @@
+cron:
+- description: fetch results from yahoo sports
+  url: /feed/soccer
+  schedule: every 2 hours

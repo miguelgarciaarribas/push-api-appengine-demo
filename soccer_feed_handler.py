@@ -8,7 +8,7 @@ import datetime
 
 def soccer_feed_request():
   provider = SoccerProvider()
-  feed_results = provider.fetch_results('test/feed2.xml') #http://sports.yahoo.com/soccer/rss.xml')
+  feed_results = provider.fetch_results('http://sports.yahoo.com/soccer/rss.xml')
   existing_results = {}
 
   # Collect existing results for matches in the same day
