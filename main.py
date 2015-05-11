@@ -91,6 +91,13 @@ def setup():
                              endpoint=settings.endpoint,
                              sender_id=settings.sender_id,
                              api_key=settings.api_key)
+# @route('/feed-test', method=['GET', 'POST'])
+# def feedTest():
+    
+#     return template('feed-test', request.)
+
+
+
 @get('/feed/soccer')
 def feedSoccer():
   results = soccer_feed_handler.soccer_feed_request()
