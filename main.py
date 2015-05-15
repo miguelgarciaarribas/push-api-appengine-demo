@@ -91,10 +91,40 @@ def setup():
                              endpoint=settings.endpoint,
                              sender_id=settings.sender_id,
                              api_key=settings.api_key)
-# @route('/feed-test', method=['GET', 'POST'])
-# def feedTest():
-    
-#     return template('feed-test', request.)
+
+
+@route('/feed-test', method=['GET', 'POST'])
+def feedTest():
+    competition = request.forms.competition
+    hometeam = request.forms.hometeam
+    homescore = request.forms.homescore
+    vistorteam = request.forms.visitorteam
+    visitorscore = request.forms.visitorscore
+
+    try:
+        homescore = int(homescore)
+        visitorscore = int(visitorscore)
+    except:
+        return template('feed-test',
+            competition = request.forms.competition,
+            hometeam ="",
+            homescore ="",
+            visitorteam ="",
+            visitorscore ="")
+    if competition != "" and hometeam != "" and visitorteam != "":
+        print "should commit"
+        return template('feed-test',
+                        competition = competition,
+                        hometeam = hometeam,
+                        homescore = str(homescore),
+                        visitorteam = visitorteam,
+                        visitorscore = str(visitorscore))
+    return template('feed-test',
+                    competition = request.forms.competition,
+                    hometeam ="",
+                    homescore ="",
+                    visitorteam ="",
+                    visitorscore ="")
 
 
 

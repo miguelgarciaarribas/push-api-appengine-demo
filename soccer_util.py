@@ -10,14 +10,6 @@ def format_key(day=datetime.datetime.now().day,
       return ""
     return str(day).zfill(2) + "/" + str(month).zfill(2) + "/" + str(year)
 
-def format_month_day_key(date):
-  try:
-    month,day = date.split(" ")
-    if month in _months:
-      return format_key(day, _months.index(month) + 1)
-    return ""
-  except: return ""
-
 def extract_date(date):
   """
   Return a date from a parsed soccer feed
@@ -27,6 +19,11 @@ def extract_date(date):
   try:
     month,day = date.split(" ")
     if month in _months:
-      return (day, _months.index(month) + 1, datetime.datetime.now().year)
+      return (int(day), _months.index(month) + 1, datetime.datetime.now().year)
     return None
   except: return None
+
+def create_test_date():
+  month = _months[datetime.datetime.now().month -1]
+  day = datetime.datetime.now().day
+  return month + " " + str(day)

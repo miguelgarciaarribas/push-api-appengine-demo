@@ -6,11 +6,6 @@
     body {
         text-align: center;
     }
-%if result:
-    .result {
-        font-style: italic;
-    }
-%end
     form {
         display: inline-block;
     }
@@ -29,13 +24,13 @@
             <input name="hometeam" value="{{hometeam}}">
         </label>
         <label>Home Score
-            <input name="homescore"  value="{{homescore}}">
+            <input type="number" name="homescore"  value="{{homescore}}">
         </label>
         <label>Visitor Team
             <input name="visitorteam"  value="{{visitorteam}}">
         </label>
         <label>Home Score
-            <input name="visitorscore"  value="{{visitorscore}}">
+            <input type="number" name="visitorscore"  value="{{visitorscore}}">
         </label>
         <input type="submit">
     </form>
