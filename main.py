@@ -98,34 +98,37 @@ def feedTest():
     competition = request.forms.competition
     hometeam = request.forms.hometeam
     homescore = request.forms.homescore
-    vistorteam = request.forms.visitorteam
+    visitorteam = request.forms.visitorteam
     visitorscore = request.forms.visitorscore
 
     try:
-        homescore = int(homescore)
-        visitorscore = int(visitorscore)
+        int(homescore)
+        int(visitorscore)
     except:
         return template('feed-test',
             competition = request.forms.competition,
             hometeam ="",
             homescore ="",
             visitorteam ="",
-            visitorscore ="")
+            visitorscore ="",
+            result = "Scores invalid")
     if competition != "" and hometeam != "" and visitorteam != "":
-        print "should commit"
+        soccer_feed_handler.merge_test_entry(
+            competition, hometeam, str(homescore), visitorteam, str(visitorscore))
         return template('feed-test',
                         competition = competition,
                         hometeam = hometeam,
                         homescore = str(homescore),
                         visitorteam = visitorteam,
-                        visitorscore = str(visitorscore))
+                        visitorscore = str(visitorscore),
+                        result = " Test result saved successfully.")
     return template('feed-test',
                     competition = request.forms.competition,
-                    hometeam ="",
-                    homescore ="",
-                    visitorteam ="",
-                    visitorscore ="")
-
+                    hometeam = "",
+                    homescore = "",
+                    visitorteam = "",
+                    visitorscore = "",
+                    result = "not enough data")
 
 
 @get('/feed/soccer')

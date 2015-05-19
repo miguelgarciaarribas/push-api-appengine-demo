@@ -13,6 +13,11 @@
         display: block;
         text-align: right;
     }
+%if result:
+    .result {
+        font-style: italic;
+    }
+%end
     </style>
 </head><body>
     <h1>Setup</h1>
@@ -34,4 +39,7 @@
         </label>
         <input type="submit">
     </form>
+%if result:
+    <p class="result">{{result}}</p>
+%end
 </body></html>

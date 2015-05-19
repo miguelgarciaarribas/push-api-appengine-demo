@@ -8,13 +8,15 @@ import datetime
 
 def soccer_feed_request():
   provider = SoccerProvider()
-  _merge_feed_results(provider.fetch_results('http://sports.yahoo.com/soccer/rss.xml'))
+  feed_results = provider.fetch_results('http://sports.yahoo.com/soccer/rss.xml')
+  _merge_feed_results(feed_results)
+  return feed_results
 
 # Just meant for testing
-def merge_test_entry(league, hometeam, homescore, vistorteam, visitorscore):
-  test_result = SoccerResult(test_date,
-                             league, hometeam, homescore, visitorteam, vistorscore)
-  _merge_feed_results([test_result])
+def merge_test_entry(league, hometeam, homescore, visitorteam, visitorscore):
+  test_result = SoccerResult(soccer_util.create_test_date(),
+                             league, hometeam, visitorteam, homescore, visitorscore)
+  _merge_feed_results([[test_result]])
 
 def _merge_feed_results(feed_results):
   existing_results = {}
