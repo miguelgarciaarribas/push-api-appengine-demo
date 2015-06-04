@@ -147,6 +147,10 @@ def feedSoccer():
 def feedSoccer():
   return template('soccer', user_from_get = 'hello')
 
+@get('/display/soccer_offline')
+def feedSoccerOffline():
+  return template('soccer_offline', user_from_get = 'hello')
+
 
 @get('/manifest.json')
 def manifest():

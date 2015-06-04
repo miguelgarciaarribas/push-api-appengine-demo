@@ -93,7 +93,7 @@
       var node = $('#result-elements');
       while (node.firstChild) {
 	  node.removeChild(node.firstChild);
-      } 
+      }
       node.appendChild(results);
     }
 
@@ -102,10 +102,27 @@
 	    fillTab(result["laliga"])
 	}, function(err) {
 	    alert("Error " + err);
-	});	
+	});
     }
 
-    createTabs(); 
+    // Loads the SW that will then take care of all requests
+    function start() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/soccer_sw.js').then(function(registration) {
+          // Registration was successful
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+
+          // THIS PROBABLY NEEDS TO GO THROUGH THE SW RIGHT???
+          fetch('/static/hello.html').then(function(response) {console.log("HELLO FETCHED " + response.status)});
+        }).catch(function(err) {
+          // registration failed :(
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      }
+    }
+
+    start();
+    createTabs();
     fetchAndDisplay(30, 4, 2015);
 
     </script>
