@@ -196,7 +196,7 @@
           // registration failed :(
           console.log('ServiceWorker registration failed: ', err);
         });
-      }
+      }else { console.log("SW Not supported"); }
 
       $('#subscribe').addEventListener('click', function(event) {
         event.preventDefault();

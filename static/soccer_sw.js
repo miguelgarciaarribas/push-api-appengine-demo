@@ -11,7 +11,7 @@ self.addEventListener('install', function(event) {
        .then(function(cache) {
          console.log('OPENED CACHE: caching ' + urlsToCache[0]);
          console.log('OPENED CACHE:' + cache);
-         return cache.add(urlsToCache[0]);
+         return cache.add(urlsToCache[0]); // return cache[urlsToCache[0]];
        }), function(err) {
          console.log('ERROR RESOLVING PROMISE ' + err);
        }
@@ -20,12 +20,13 @@ self.addEventListener('install', function(event) {
 
 
 self.addEventListener('activate', function(event) {
-  console.log("activated called " + event);
+  console.log("SW activated");
 });
 
 // Callback for the fetch event
 self.addEventListener('fetch', function(event) {
   console.log('FETCH EVENT HANDLING');
+  // event.respondWith(new Response("Hello world from cache!"));
   var fetchRequest = event.request.clone();
   console.log('got fetch request for ' + fetchRequest);
   event.respondWith(
