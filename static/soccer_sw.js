@@ -10,7 +10,7 @@ self.addEventListener('install', function(event) {
      caches.open(CACHE_NAME)
        .then(function(cache) {
          console.log('OPENED CACHE');
-         return cache.urlsToCache[0];
+         return cache[urlsToCache[0]];
        }), function(err) {
          console.log('ERROR RESOLVING PROMISE ' + err);
        }
@@ -18,9 +18,14 @@ self.addEventListener('install', function(event) {
 });
 
 
+self.addEventListener('activate', function(event) {
+  console.log("SW activated");
+});
+
 // Callback for the fetch event
 self.addEventListener('fetch', function(event) {
   console.log('FETCH EVENT HANDLING');
+  // event.respondWith(new Response("Hello world from cache!"));
   var fetchRequest = event.request.clone();
   console.log('got fetch request for ' + fetchRequest);
   event.respondWith(

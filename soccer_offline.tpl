@@ -112,13 +112,12 @@
           // Registration was successful
           console.log('ServiceWorker registration successful with scope: ', registration.scope);
 
-          // THIS PROBABLY NEEDS TO GO THROUGH THE SW RIGHT???
-          fetch('/static/hello.html').then(function(response) {console.log("HELLO FETCHED " + response.status)});
+//          fetch('/static/hello.html').then(function(response) {console.log("HELLO FETCHED " + response.status)});
         }).catch(function(err) {
           // registration failed :(
           console.log('ServiceWorker registration failed: ', err);
         });
-      }
+      } else { console.log("SW Not supported"); }
     }
 
     start();
@@ -126,5 +125,5 @@
     fetchAndDisplay(30, 4, 2015);
 
     </script>
-
+    <a href="/static/hello.html"> Click </a>
 </body></html>
