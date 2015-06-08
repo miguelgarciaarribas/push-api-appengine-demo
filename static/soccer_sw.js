@@ -26,7 +26,6 @@ self.addEventListener('activate', function(event) {
 // Callback for the fetch event
 self.addEventListener('fetch', function(event) {
   console.log('FETCH EVENT HANDLING');
-  // event.respondWith(new Response("Hello world from cache!"));
   var fetchRequest = event.request.clone();
   console.log('got fetch request for ' + fetchRequest);
   event.respondWith(
@@ -42,4 +41,9 @@ self.addEventListener('fetch', function(event) {
       }
     )
   );
+});
+
+
+this.addEventListener('push', function(evt) {
+console.log('PUSH EVENT RECEIVED');
 });
