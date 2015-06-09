@@ -10,7 +10,6 @@ self.addEventListener('install', function(event) {
      caches.open(CACHE_NAME)
        .then(function(cache) {
          console.log('OPENED CACHE: caching ' + urlsToCache[0]);
-         console.log('OPENED CACHE:' + cache);
          return cache.add(urlsToCache[0]); // return cache[urlsToCache[0]];
        }), function(err) {
          console.log('ERROR RESOLVING PROMISE ' + err);
