@@ -22,6 +22,9 @@
   </core-toolbar>
 
   <div id="result-elements"> </div>
+  <input id="subscribe" type=button value="Subscribe to push!"/>
+  <a href ="/static/hello.html"> SW CHECK </a>
+  <p id="log"> </p>
   <script>
     var $ = document.querySelector.bind(document);
     // Fetch scores related messages
@@ -105,20 +108,102 @@
 	});
     }
 
+    function subscribeForPush() {
+      console.log("subscribeForPush");
+      navigator.serviceWorker.ready.then(function(swr) {
+        console.log("ACTIVE");
+        // TODO: Ideally we wouldn't have to check this here, since
+        // the hasPush check earlier would guarantee it.
+        if (!swr.pushManager) {
+          $("#log").textContent = "Your browser does not support push messaging; you won't be able to receive messages.";
+        } else {
+          doSubscribe(swr.pushManager);
+        }
+      }).catch(function(err){ $("#log").textContent = "oh oh.. " + err; });
+    }
+
+    function doSubscribe(pushManager) {
+      pushManager.subscribe().then(function(ps) {
+        console.log(JSON.stringify(ps));
+        sendSubscriptionToBackend(ps.endpoint, ps.subscriptionId);
+      }, function(err) {
+        $("#log").textContent("API call unsuccessful! " + err);
+      });
+    }
+
+    function sendSubscriptionToBackend(endpoint, subscriptionId) {
+      console.log("Sending subscription to " + location.hostname + "...");
+      $("#log").textContent = "Sending subscription to " + location.hostname + "...";
+      // var formData = new FormData();
+      // formData.append('username', $('#username').value);
+      // formData.append('endpoint', endpoint);
+      // formData.append('subscription_id', subscriptionId);
+      // var xhr = new XMLHttpRequest();
+      // xhr.onload = function() {
+      //   if (('' + xhr.status)[0] != '2') {
+      //     setStatus('join', 'fail', "Server error " + xhr.status
+      //         + ": " + xhr.statusText);
+      //   } else {
+      //     setStatus('join', 'success', "Subscribed.");
+      //     showChatScreen(false);
+      //   }
+      // };
+      // xhr.onerror = xhr.onabort = function() {
+      //   setStatus('join', 'fail', "Failed to send subscription ID!");
+      // };
+      // xhr.open('POST', '/chat/subscribe');
+      // xhr.send(formData);
+    }
+
+    function subscribeForNotifications() {
+      var hasPush = !!window.PushManager;
+      var hasNotification =
+          !!window.ServiceWorkerRegistration &&
+          !!ServiceWorkerRegistration.prototype.showNotification;
+      var hasServiceWorker = !!navigator.serviceWorker;
+      var supportsPush = hasPush && hasNotification && hasServiceWorker;
+      $('#subscribe').disabled = true;
+      if (!hasPush || !hasServiceWorker) {
+        $("#log").textContent("PUSH NOT AVAILABLE ON YOUR BROWSER");
+        return;
+      }
+      navigator.serviceWorker.register('/static/soccer_sw.js').then(function(registration) {
+        Notification.requestPermission(function(permission) {
+          if (permission == "granted") {
+            console.log("GRANTED!!");
+            subscribeForPush();
+            return;
+          }
+          if (permission == "denied") {
+            $('#log').textContent ="Notification permission denied. "
+                + "Reset it via Page Info.";
+          } else { // "default"
+            $('#log').textContent ="Notification permission prompt "
+                + "dismissed. Reload to try "
+                + "again.";
+          }
+        });
+      });
+    }
+
     // Loads the SW that will then take care of all requests
     function start() {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/static/soccer_sw.js').then(function(registration) {
           // Registration was successful
           console.log('ServiceWorker registration successful with scope: ', registration.scope);
-
-          // THIS PROBABLY NEEDS TO GO THROUGH THE SW RIGHT???
-          fetch('/static/hello.html').then(function(response) {console.log("HELLO FETCHED " + response.status)});
         }).catch(function(err) {
           // registration failed :(
           console.log('ServiceWorker registration failed: ', err);
         });
       }
+
+      $('#subscribe').addEventListener('click', function(event) {
+        event.preventDefault();
+        //subscribeForNotifications();
+      });
+
+
     }
 
     start();

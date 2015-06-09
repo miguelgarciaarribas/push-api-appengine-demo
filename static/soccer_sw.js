@@ -9,14 +9,19 @@ self.addEventListener('install', function(event) {
   event.waitUntil(
      caches.open(CACHE_NAME)
        .then(function(cache) {
-         console.log('OPENED CACHE');
-         return cache.urlsToCache[0];
+         console.log('OPENED CACHE: caching ' + urlsToCache[0]);
+         console.log('OPENED CACHE:' + cache);
+         return cache.add(urlsToCache[0]);
        }), function(err) {
          console.log('ERROR RESOLVING PROMISE ' + err);
        }
       );
 });
 
+
+self.addEventListener('activate', function(event) {
+  console.log("activated called " + event);
+});
 
 // Callback for the fetch event
 self.addEventListener('fetch', function(event) {
