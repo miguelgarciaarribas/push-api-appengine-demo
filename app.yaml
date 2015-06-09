@@ -41,6 +41,11 @@ handlers:
   static_dir: static
   secure: always
 
+- url: /display/(.+\..+)
+  static_files: static/display/\1
+  upload: static/display/.*
+  secure: always
+
 - url: /chat/(.+\..+)
   static_files: static/chat/\1
   upload: static/chat/.*

@@ -23,7 +23,7 @@
 
   <div id="result-elements"> </div>
   <input id="subscribe" type=button value="Subscribe to push!"/>
-  <a href ="/static/hello.html"> SW CHECK </a>
+  <a href ="/display/hello.html"> SW CHECK </a>
   <p id="log"> </p>
   <script>
     var $ = document.querySelector.bind(document);
@@ -109,9 +109,9 @@
     }
 
     function subscribeForPush() {
-      console.log("subscribeForPush");
+      console.log("subscribeForPush:" );
       navigator.serviceWorker.ready.then(function(swr) {
-        console.log("ACTIVE");
+        console.log("ACTIVE: " + swr);
         // TODO: Ideally we wouldn't have to check this here, since
         // the hasPush check earlier would guarantee it.
         if (!swr.pushManager) {
@@ -127,7 +127,7 @@
         console.log(JSON.stringify(ps));
         sendSubscriptionToBackend(ps.endpoint, ps.subscriptionId);
       }, function(err) {
-        $("#log").textContent("API call unsuccessful! " + err);
+        $("#log").textContent ="API call unsuccessful! " + err;
       });
     }
 
@@ -167,7 +167,8 @@
         $("#log").textContent("PUSH NOT AVAILABLE ON YOUR BROWSER");
         return;
       }
-      navigator.serviceWorker.register('/static/soccer_sw.js').then(function(registration) {
+      navigator.serviceWorker.register('/display/soccer_sw.js', {scope: "/display/"}).then(function(registration) {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
         Notification.requestPermission(function(permission) {
           if (permission == "granted") {
             console.log("GRANTED!!");
@@ -188,23 +189,10 @@
 
     // Loads the SW that will then take care of all requests
     function start() {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/static/soccer_sw.js').then(function(registration) {
-          // Registration was successful
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-
-        }).catch(function(err) {
-          // registration failed :(
-          console.log('ServiceWorker registration failed: ', err);
-        });
-      }else { console.log("SW Not supported"); }
-
       $('#subscribe').addEventListener('click', function(event) {
         event.preventDefault();
-        //subscribeForNotifications();
+        subscribeForNotifications();
       });
-
-
     }
 
     start();
