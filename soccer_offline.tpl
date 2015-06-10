@@ -36,8 +36,9 @@
                   "&month=" + month +
                   "&year=" + year);
         req.onload = function() {
-          if (req.status != 200) {
+          if (('' + req.status)[0] != '2') {
             reject("Error");
+            return;
           }
 	  console.log(req.responseText);
           var results = JSON.parse(req.responseText);
@@ -134,25 +135,26 @@
     function sendSubscriptionToBackend(endpoint, subscriptionId) {
       console.log("Sending subscription to " + location.hostname + "...");
       $("#log").textContent = "Sending subscription to " + location.hostname + "...";
-      // var formData = new FormData();
-      // formData.append('username', $('#username').value);
-      // formData.append('endpoint', endpoint);
-      // formData.append('subscription_id', subscriptionId);
-      // var xhr = new XMLHttpRequest();
-      // xhr.onload = function() {
-      //   if (('' + xhr.status)[0] != '2') {
-      //     setStatus('join', 'fail', "Server error " + xhr.status
-      //         + ": " + xhr.statusText);
-      //   } else {
-      //     setStatus('join', 'success', "Subscribed.");
-      //     showChatScreen(false);
-      //   }
-      // };
-      // xhr.onerror = xhr.onabort = function() {
-      //   setStatus('join', 'fail', "Failed to send subscription ID!");
-      // };
-      // xhr.open('POST', '/chat/subscribe');
-      // xhr.send(formData);
+      var formData = new FormData();
+      formData.append('endpoint', endpoint);
+      formData.append('subscription_id', subscriptionId);
+      // TODO: Defaults to Real Perdiz registrations, make it generic
+      formData.append('team', 'Real Perdiz');
+
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        if (('' + xhr.status)[0] != '2') {
+          $("#log").textContent = "Server error " + xhr.status
+              + ": " + xhr.statusText;
+        } else {
+           $("#log").textContent = "Subscribed!";
+        }
+      };
+      xhr.onerror = xhr.onabort = function() {
+        $("#log").textContent = "Failed to send subscription ID!";
+      };
+      xhr.open('POST', '/subscribe/soccer');
+      xhr.send(formData);
     }
 
     function subscribeForNotifications() {

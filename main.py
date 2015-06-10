@@ -25,9 +25,8 @@ PERMANENT_GCM_ERRORS = {'InvalidRegistration', 'NotRegistered',
                         'InvalidPackageName', 'MismatchSenderId'}
 
 class RegistrationType(messages.Enum):
-    LEGACY = 1
-    CHAT = 2
-    CHAT_STALE = 3  # GCM told us the registration was no longer valid.
+    SOCCER = 1
+    STALE = 2  # GCM told us the registration was no longer valid.
 
 class PushService(messages.Enum):
     GCM = 1
@@ -49,9 +48,21 @@ class GcmSettings(ndb.Model):
 # The key of a GCM Registration entity is the push subscription ID;
 # the key of a Firefox Registration entity is the push endpoint URL.
 # If more push services are added, consider namespacing keys to avoid collision.
+# TODO: remove this as it is replaced by SoccerRegistration
 class Registration(ndb.Model):
     type = msgprop.EnumProperty(RegistrationType, required=True, indexed=True)
     service = msgprop.EnumProperty(PushService, required=True, indexed=True)
+    creation_date = ndb.DateTimeProperty(auto_now_add=True)
+
+# The key of a GCM Registration entity is the push subscription ID;
+# the key of a Firefox Registration entity is the push endpoint URL.
+# If more push services are added, consider namespacing keys to avoid collision.
+# It only allows to register for one team, will probably need add some
+# level of indirection here.
+class SoccerRegistration(ndb.Model):
+    type = msgprop.EnumProperty(RegistrationType, required=True, indexed=True)
+    service = msgprop.EnumProperty(PushService, required=True, indexed=True)
+    team =  ndb.StringProperty(required=True, indexed=True)
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
 
 class Message(ndb.Model):
@@ -147,6 +158,7 @@ def feedSoccer():
 def feedSoccer():
   return template('soccer', user_from_get = 'hello')
 
+#TODO user_from_get probably obsolete
 @get('/display/soccer_offline')
 def feedSoccerOffline():
   return template('soccer_offline', user_from_get = 'hello')
@@ -155,15 +167,15 @@ def feedSoccerOffline():
 @get('/manifest.json')
 def manifest():
     return {
-        "short_name": "Chat App",
-        "name": "Chat App",
+        "short_name": "Sports Latest",
+        "name": "Sport Latest",
         "icons": [{
             "src": "/static/hangouts.png",
             "sizes": "42x42",
             "type": "image/png"
         }],
         "display": "standalone",
-        "start_url": "/chat/",
+        "start_url": "/display/soccer_offline",
         "gcm_sender_id": GcmSettings.singleton().sender_id,
         "gcm_user_visible_only": True
     }
@@ -209,31 +221,36 @@ def template_with_sender_id(*args, **kwargs):
     kwargs['sender_id'] = settings.sender_id
     return template(*args, **kwargs)
 
-@post('/chat/subscribe')
-def register_chat():
-    return register(RegistrationType.CHAT)
+@post('/subscribe/soccer')
+def register_soccer():
+    return register(RegistrationType.SOCCER)
 
 def register(type):
     """XHR adding a registration ID to our list."""
     if not request.forms.endpoint:
         abort(400, "Missing endpoint")
+    if not request.forms.team:
+        abort(400, "Missing team")
 
-    if request.forms.endpoint == DEFAULT_GCM_ENDPOINT:
+    if DEFAULT_GCM_ENDPOINT in request.forms.endpoint:
         if not request.forms.subscription_id:
             abort(400, "Missing subscription_id")
-        registration = Registration.get_or_insert(request.forms.subscription_id,
-                                                  type=type,
-                                                  service=PushService.GCM)
+        registration = SoccerRegistration.get_or_insert(request.forms.subscription_id,
+                                                    type=type,
+                                                    team=request.forms.team,
+                                                    service=PushService.GCM)
     else:
         # Assume unknown endpoints are Firefox Simple Push.
         # TODO: Find a better way of distinguishing these.
-        registration = Registration.get_or_insert(request.forms.endpoint,
-                                                  type=type,
-                                                  service=PushService.FIREFOX)
+        registration = SoccerRegistration.get_or_insert(request.forms.endpoint,
+                                                    type=type,
+                                                    team=request.forms.team,
+                                                    service=PushService.FIREFOX)
     registration.put()
     response.status = 201
     return ""
 
+# TODO: PORT THIS TO SOCCER
 @post('/chat/clear-registrations')
 def clear_chat_registrations():
     ndb.delete_multi(
@@ -244,6 +261,7 @@ def clear_chat_registrations():
                         .fetch(keys_only=True))
     return ""
 
+# TODO: PORT THIS TO SOCCER
 @post('/chat/send')
 def send_chat():
     return send(RegistrationType.CHAT, request.forms.message)
