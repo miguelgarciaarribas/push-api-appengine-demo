@@ -3,67 +3,21 @@
 import bottle
 from bottle import get, post, route, abort, redirect, template, request, response
 import cgi
-from google.appengine.api import app_identity, urlfetch, users
+from google.appengine.api import app_identity, users
 from google.appengine.ext import ndb
-from google.appengine.ext.ndb import msgprop
+#from google.appengine.ext.ndb import msgprop
 import datetime
-import json
+# import json
 import logging
 import re
 import os
+import soccer_change_sender
 import soccer_collect_handler
 import soccer_feed_handler
-from protorpc import messages
+#from protorpc import messages
 from soccer_parser import SoccerProvider, SoccerResult
+from soccer_registration_model import *
 import urllib
-
-DEFAULT_GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send'
-
-# Hand-picked from
-# https://developer.android.com/google/gcm/server-ref.html#error-codes
-PERMANENT_GCM_ERRORS = {'InvalidRegistration', 'NotRegistered',
-                        'InvalidPackageName', 'MismatchSenderId'}
-
-class RegistrationType(messages.Enum):
-    SOCCER = 1
-    STALE = 2  # GCM told us the registration was no longer valid.
-
-class PushService(messages.Enum):
-    GCM = 1
-    FIREFOX = 2  # SimplePush
-
-class GcmSettings(ndb.Model):
-    SINGLETON_DATASTORE_KEY = 'SINGLETON'
-
-    @classmethod
-    def singleton(cls):
-        return cls.get_or_insert(cls.SINGLETON_DATASTORE_KEY)
-
-    endpoint = ndb.StringProperty(
-            default=DEFAULT_GCM_ENDPOINT,
-            indexed=False)
-    sender_id = ndb.StringProperty(default="", indexed=False)
-    api_key = ndb.StringProperty(default="", indexed=False)
-
-# The key of a GCM Registration entity is the push subscription ID;
-# the key of a Firefox Registration entity is the push endpoint URL.
-# If more push services are added, consider namespacing keys to avoid collision.
-# TODO: remove this as it is replaced by SoccerRegistration
-class Registration(ndb.Model):
-    type = msgprop.EnumProperty(RegistrationType, required=True, indexed=True)
-    service = msgprop.EnumProperty(PushService, required=True, indexed=True)
-    creation_date = ndb.DateTimeProperty(auto_now_add=True)
-
-# The key of a GCM Registration entity is the push subscription ID;
-# the key of a Firefox Registration entity is the push endpoint URL.
-# If more push services are added, consider namespacing keys to avoid collision.
-# It only allows to register for one team, will probably need add some
-# level of indirection here.
-class SoccerRegistration(ndb.Model):
-    type = msgprop.EnumProperty(RegistrationType, required=True, indexed=True)
-    service = msgprop.EnumProperty(PushService, required=True, indexed=True)
-    team =  ndb.StringProperty(required=True, indexed=True)
-    creation_date = ndb.DateTimeProperty(auto_now_add=True)
 
 class Message(ndb.Model):
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
@@ -103,8 +57,15 @@ def setup():
                              sender_id=settings.sender_id,
                              api_key=settings.api_key)
 
+# TODO Make this an admin url
+@get('/test/sendmessage')
+def testSend():
+  stats = soccer_change_sender.send("Real Perdiz")
+  if stats:
+     response.status = 201
+  return str(stats)
 
-@route('/feed-test', method=['GET', 'POST'])
+@route('/test/feed', method=['GET', 'POST'])
 def feedTest():
     competition = request.forms.competition
     hometeam = request.forms.hometeam
@@ -182,25 +143,9 @@ def manifest():
 
 @get('/')
 def root_redirect():
-    redirect("/chat/")
+    redirect("/display/soccer_offline")
 
-@get('/chat')
-def chat_redirect():
-    redirect("/chat/")
-
-@get('/chat/')
-def chat():
-    """Single page chat app."""
-    return template_with_sender_id('chat', user_from_get = request.query.get('user') or '')
-
-@get('/chat/messages')
-def chat_messages():
-    """XHR to fetch the most recent chat messages."""
-    messages = reversed(Message.query(ancestor=thread_key())
-                               .order(-Message.creation_date).fetch(20))
-    return "\n".join(re.sub(r'\r\n|\r|\n', ' ', cgi.escape(m.text))
-                     for m in messages)
-
+#TODO: redirect to a chatless place and rename the chat template
 @get('/admin')
 def legacy_chat_admin_redirect():
     redirect("/chat/admin")

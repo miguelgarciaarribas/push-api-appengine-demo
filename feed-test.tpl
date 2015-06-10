@@ -13,11 +13,10 @@
         display: block;
         text-align: right;
     }
-%if result:
     .result {
         font-style: italic;
     }
-%end
+
     </style>
 </head><body>
     <h1>Setup</h1>
@@ -42,4 +41,21 @@
 %if result:
     <p class="result">{{result}}</p>
 %end
+
+<input id="send" type=button value="Send Raw Push Message"/>
+<p class="result" id="log"> </p>
+
+<script>
+ function start() {
+   var $ = document.querySelector.bind(document);
+   $('#send').addEventListener('click', function(event) {
+     event.preventDefault();
+     fetch('/test/sendmessage')
+         .then(function() {$("#log").textContent = "Message sent";})
+         .catch(function() {$("#log").textContent = "Error sending message";} )
+   });
+ }
+ start();
+</script>
+
 </body></html>

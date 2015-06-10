@@ -6,7 +6,7 @@ import soccer_util
 
 import datetime
 
-def soccer_feed_request():
+def soccer_feed_request(callback):
   provider = SoccerProvider()
   feed_results = provider.fetch_results('http://sports.yahoo.com/soccer/rss.xml')
   _merge_feed_results(feed_results)
