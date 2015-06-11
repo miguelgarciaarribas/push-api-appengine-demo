@@ -138,8 +138,8 @@
       var formData = new FormData();
       formData.append('endpoint', endpoint);
       formData.append('subscription_id', subscriptionId);
-      // TODO: Defaults to Real Perdiz registrations, make it generic
-      formData.append('team', 'Real Perdiz');
+      // TODO: Defaults to Atletico Madrid registrations, make it generic
+      formData.append('team', 'Atletico Madrid');
 
       var xhr = new XMLHttpRequest();
       xhr.onload = function() {

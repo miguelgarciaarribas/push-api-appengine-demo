@@ -9,11 +9,22 @@ class SendStats:
     total_count = 0
     text = ""
 
+def notify_changes(results):
+    """ Extract the teams involved in the results and notify about changes. """
+    teams = set()
+    for result in results:
+        # TODO: Probably sanitize that the date is reasonable
+        # before deciding to send notifications
+        teams.add(result.home_team)
+        teams.add(result.visitor_team)
+    for team in teams:
+        send(team)
+
 # TODO: Store stats somewhere?
 def send(team, type=RegistrationType.SOCCER):
     """XHR requesting that we send a push message to all users."""
-    gcm_stats = sendGCM(type, team)
-    firefox_stats = sendFirefox(type, team)
+    gcm_stats = _sendGCM(type, team)
+    firefox_stats = _sendFirefox(type, team)
 
     if gcm_stats.success_count + firefox_stats.success_count == 0:
         if gcm_stats.total_count + firefox_stats.total_count == 0:
@@ -30,7 +41,7 @@ def send(team, type=RegistrationType.SOCCER):
     return
 
 
-def sendGCM(type, team):
+def _sendGCM(type, team):
     gcm_registration_keys = \
             SoccerRegistration.query(SoccerRegistration.type == type,
                                      SoccerRegistration.team == team,
@@ -88,14 +99,14 @@ def sendGCM(type, team):
             stale_keys.append(gcm_registration_keys[i])
     stale_registrations = ndb.get_multi(stale_keys)
     for registration in stale_registrations:
-        registration.type = RegistrationType.CHAT_STALE
+        registration.type = RegistrationType.STALE
     ndb.put_multi(stale_registrations)
 
     return stats
 
 
 # TODO: FIX
-def sendFirefox(type, team):
+def _sendFirefox(type, team):
     firefox_registration_keys = \
             SoccerRegistration.query(SoccerRegistration.type == type,
                                 SoccerRegistration.team == team,

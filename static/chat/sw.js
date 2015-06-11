@@ -78,7 +78,7 @@ this.addEventListener('notificationclick', function(evt) {
                 return client.focus();
         }
         if (clients.openWindow)
-            return clients.openWindow("/chat/");
+            return clients.openWindow("/display/soccer_offline");
     }));
 });
 
