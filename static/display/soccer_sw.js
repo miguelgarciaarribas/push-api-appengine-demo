@@ -1,3 +1,5 @@
+"use strict";
+
 var CACHE_NAME = 'my-site-cache-v1';
 var urlsToCache = [
   '/display/hello.html'
@@ -51,5 +53,13 @@ self.addEventListener('fetch', function(event) {
 
 
 this.addEventListener('push', function(evt) {
-console.log('PUSH EVENT RECEIVED');
+    console.log('PUSH EVENT RECEIVED');
+    var title = "This is cool";
+    var message = "Notification";
+    var options = {
+        body: message,
+        tag: 'soccer',
+        icon: '/static/cat.png'
+    };
+    return self.registration.showNotification(title, options);
 });
