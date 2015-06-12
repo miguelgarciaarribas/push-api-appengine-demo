@@ -8,7 +8,8 @@ def main():
     output = open('feed1_out.xml', 'w')
     template = input.read()
     date = soccer_util.create_test_date()
-    result = template.replace("{{DATE}}", "June 11")
+    print "Generated feed for" , date
+    result = template.replace("{{DATE}}", date)
     output.write(result)
 
 if __name__ == "__main__":
