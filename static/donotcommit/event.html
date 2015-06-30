@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Event List App</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="page-wrapper">
+    <!-- Form for new Todo Items -->
+    <form id="new-todo-form" method="POST" action="#">
+      <input type="text" id="liga" placeholder="Liga" required>
+      <input type="text" id="hometeam" placeholder="Local team" required>
+      <input type="number" id="homeresult" placeholder="Local result" required>
+      <input type="submit">
+    </form>
+
+    <!-- Todo Item List -->
+    <ul id="todo-items"></ul>
+  </div>
+
+  <script src="soccer_db.js"></script>
+  <script src="soccer_app.js"></script>
+</body>
+</html>
