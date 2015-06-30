@@ -13,6 +13,7 @@
     <link rel="import" href="/static/components/soccer/soccer-results.html">
     <link rel="import" href="/static/components/soccer/sports-tabs.html">
 
+    <script src="/static/localstore/soccer_db.js"> </script>
     <script src="/static/display/main.js"> </script>
 
 </head>
@@ -31,8 +32,6 @@
 <script>
   window.addEventListener('load', function() {
     start();
-    createTabs();
-    fetchAndDisplay(30, 6, 2015);
   });
 </script>
 
