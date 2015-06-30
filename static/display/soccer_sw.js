@@ -72,7 +72,7 @@ this.addEventListener('notificationclick', function(evt) {
         type: "window",
         includeUncontrolled: true
     }).catch(function(ex) {
-        // Chrome doesn't yet support includeUncontrolled:true crbug.com/455241
+        // Chrome doesn't yet support includeUncontrolled:true before M43
         if (ex.name != "NotSupportedError")
             throw ex;
         return clients.matchAll({
@@ -90,4 +90,3 @@ this.addEventListener('notificationclick', function(evt) {
             return clients.openWindow("/display/soccer_offline");
     }));
 });
-
