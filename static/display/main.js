@@ -56,7 +56,7 @@ function createTabs(result) {
     var text = document.createTextNode(printDate);
     node.appendChild(text);
     node.addEventListener("click", function(e) {
-        fetchAndDisplay(e.target.day, e.target.month, e.target.year)});
+      fillTabFromCache(e.target.day, e.target.month, e.target.year)});
     $('#tabs').appendChild(node);
   }
   $('#tabs').selected = formatDate(getDate(0));
@@ -82,27 +82,24 @@ function fillTabFromCache(day, month, year) {
    var results = document.createElement("soccer-results");
    results.id = "myresult";
 
-   var date =  new Date(year, month, day, 0, 0, 0, 0);
-
    results.results = events.filter(function(e) {
-     var when = new Date(e.timestamp);
-     var cond =  when.getDate() == date.getDate() && when.getMonth() == date.getMonth() &&
-            when.getFullYear() == date.getFullYear();
+     var cond = e.day  == day && e.month == month &&
+            e.year == year;
      return cond;
    });
    node.appendChild(results);
  });
 }
 
-
+// TODO(miguelg): Delete events from way in the past for perfomance
 function cacheEvents(events) {
   var i = 0;
   while (i < events.length) {
-    console.log("Caching...");
     soccerDB.createEvent(
-        "La Liga", events[i].home_team, events[i].home_score, events[i].visitor_team,
-        events[i].visitor_score, function(event) {
-          // TODO:This is horrible, no gurantee that all events have been committed.
+        "La Liga", events[i].id, events[i].home_team, events[i].home_score, events[i].visitor_team,
+        events[i].visitor_score, events[i].day, events[i].month, events[i].year, function(event) {
+          // TODO: Refresh when an event for the current viewing day happens.
+          // Or that they are all for the same day.
           if (i == events.length- 1) {
             console.log("Last Element saved should probably trigger a refresh." + event);
           }
@@ -111,11 +108,10 @@ function cacheEvents(events) {
   }
 }
 
-function fetchAndDisplay(day, month, year) {
+function fetchAndStore(day, month, year) {
     fetchScores(day, month, year).then(function(result) {
       var events = result["laliga"]
       cacheEvents(events);
-      fillTabFromCache(day, month, year);
    }, function(err) {
         alert("Error " + err);
     });
@@ -207,9 +203,11 @@ function start() {
     event.preventDefault();
     subscribeForNotifications();
   });
-
+  createTabs();
    soccerDB.open(function(ev) {
-     createTabs();
-     fetchAndDisplay(30, 5, 2015);
+     for (var i = 0; i < 7 ; ++i) {
+       var day = getDate(i)
+       fetchAndStore(day.getDate(), day.getMonth(), day.getFullYear());
+     }
    });
 }

@@ -23,7 +23,7 @@ def extract_date(date):
     return None
   except: return None
 
-def create_test_date():
+def create_test_date(offset=0):
   month = _months[datetime.datetime.now().month -1]
-  day = datetime.datetime.now().day
+  day = datetime.datetime.now().day + offset
   return month + " " + str(day)

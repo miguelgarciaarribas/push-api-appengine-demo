@@ -7,7 +7,7 @@ var soccerDB = (function() {
   */
   eventDB.open = function(callback) {
     // Database version.
-    var version = 1;
+    var version = 2;
 
     // Open a connection to the datastore.
     var request = indexedDB.open('soccer_events', version);
@@ -25,7 +25,7 @@ var soccerDB = (function() {
 
       // Create a new datastore.
       var store = db.createObjectStore('soccer_event', {
-        keyPath: 'timestamp'
+        keyPath: 'id'
       });
     };
 
@@ -79,7 +79,8 @@ var soccerDB = (function() {
   /**
       * Create a new event.
   */
-  eventDB.createEvent = function(league, home_team, home_score, visitor_team, visitor_score, callback) {
+  eventDB.createEvent = function(league, id, home_team, home_score, visitor_team, visitor_score,
+                                 day, month, year, callback) {
     // Get a reference to the db.
     var db = datastore;
 
@@ -99,7 +100,10 @@ var soccerDB = (function() {
       'home_score' : home_score,
       'visitor_team' : visitor_team,
       'visitor_score' : visitor_score,
-      'timestamp': timestamp
+      'day' : day,
+      'month' : month,
+      'year' : year,
+      'id' : id
     };
 
     // Create the datastore request.

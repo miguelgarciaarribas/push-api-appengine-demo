@@ -9,8 +9,8 @@ import datetime
 
 def soccer_feed_request(callback):
   provider = SoccerProvider()
-  #Use 'test/feed1_out.xml'
-  feed_results = provider.fetch_results('http://sports.yahoo.com/soccer/rss.xml')
+  #Use 'test/feed1_out.xml' for testing
+  feed_results = provider.fetch_results('test/feed2_out.xml')   #('http://sports.yahoo.com/soccer/rss.xml')
   callback(_merge_feed_results(feed_results))
   return feed_results
 

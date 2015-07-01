@@ -1,0 +1,3 @@
+Load events for today on first load instead of having to wait for a click
+
+Keep track of the currently visible date and Refresh if there is an event that belongs there.

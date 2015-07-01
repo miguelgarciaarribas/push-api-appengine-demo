@@ -176,8 +176,10 @@ def register(type):
         abort(400, "Missing team")
 
     if DEFAULT_GCM_ENDPOINT in request.forms.endpoint:
+        logging.error("Subscription ID:" + str(request.forms.subscription_id))
         if not request.forms.subscription_id:
             abort(400, "Missing subscription_id")
+
         registration = SoccerRegistration.get_or_insert(request.forms.subscription_id,
                                                     type=type,
                                                     team=request.forms.team,
