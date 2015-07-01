@@ -1,5 +1,8 @@
 "use strict";
 
+importScripts("/static/localstore/soccer_access.js");
+importScripts("/static/localstore/soccer_db.js");
+
 var CACHE_NAME = 'my-site-cache-v1';
 var urlsToCache = [
   '/display/hello.html'
@@ -50,7 +53,6 @@ self.addEventListener('fetch', function(event) {
   console.log('going to the network');
   return fetch(event.request);
 });
-
 
 this.addEventListener('push', function(evt) {
     console.log('PUSH EVENT RECEIVED');

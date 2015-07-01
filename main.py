@@ -113,14 +113,11 @@ def feedSoccer():
   year = request.query.get('year') or datetime.datetime.now().year
   return soccer_collect_handler.display_results(day, month, year)
 
-@get('/display/soccer')
-def feedSoccer():
-  return template('soccer', user_from_get = 'hello')
 
 #TODO user_from_get probably obsolete
-@get('/display/soccer_offline')
+@get('/display/soccer')
 def feedSoccerOffline():
-  return template('soccer_offline', user_from_get = 'hello')
+  return template('soccer', user_from_get = 'hello')
 
 
 @get('/manifest.json')

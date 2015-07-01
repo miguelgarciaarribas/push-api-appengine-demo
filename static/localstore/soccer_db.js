@@ -77,7 +77,7 @@ var soccerDB = (function() {
 
 
   /**
-      * Create a new event.
+   * Create a new event.
   */
   eventDB.createEvent = function(league, id, home_team, home_score, visitor_team, visitor_score,
                                  day, month, year, callback) {
@@ -89,9 +89,6 @@ var soccerDB = (function() {
 
     // Get the datastore.
     var objStore = transaction.objectStore('soccer_event');
-
-    // Create a timestamp for the event item.
-    var timestamp = new Date().getTime();
 
     // Create an object for the event item.
     var event = {
@@ -121,7 +118,7 @@ var soccerDB = (function() {
 
 
   /**
-      * Delete an event.
+   * Delete an event.
   */
   eventDB.deleteEvent = function(id, callback) {
     var db = datastore;

@@ -1,27 +1,5 @@
 'use strict';
-
 var $ = document.querySelector.bind(document);
-// Fetch scores related messages
-function fetchScores(day, month, year) {
-  var promise = new Promise(function(resolve, reject) {
-    var req = new XMLHttpRequest();
-    var today = new Date()
-    req.open("GET", "/collect/soccer?day=" + day +
-              "&month=" + month +
-              "&year=" + year);
-    req.onload = function() {
-      if (('' + req.status)[0] != '2') {
-        reject("Error");
-        return;
-      }
-      console.log(req.responseText);
-      var results = JSON.parse(req.responseText);
-      resolve(results);
-    };
-    req.send();
-  });
-  return promise;
-}
 
 function formatDate(date) {
     var weekday = new Array(7);
@@ -89,32 +67,6 @@ function fillTabFromCache(day, month, year) {
    });
    node.appendChild(results);
  });
-}
-
-// TODO(miguelg): Delete events from way in the past for perfomance
-function cacheEvents(events) {
-  var i = 0;
-  while (i < events.length) {
-    soccerDB.createEvent(
-        "La Liga", events[i].id, events[i].home_team, events[i].home_score, events[i].visitor_team,
-        events[i].visitor_score, events[i].day, events[i].month, events[i].year, function(event) {
-          // TODO: Refresh when an event for the current viewing day happens.
-          // Or that they are all for the same day.
-          if (i == events.length- 1) {
-            console.log("Last Element saved should probably trigger a refresh." + event);
-          }
-        });
-    i++;
-  }
-}
-
-function fetchAndStore(day, month, year) {
-    fetchScores(day, month, year).then(function(result) {
-      var events = result["laliga"]
-      cacheEvents(events);
-   }, function(err) {
-        alert("Error " + err);
-    });
 }
 
 function subscribeForPush() {
@@ -204,10 +156,10 @@ function start() {
     subscribeForNotifications();
   });
   createTabs();
-   soccerDB.open(function(ev) {
-     for (var i = 0; i < 7 ; ++i) {
-       var day = getDate(i)
-       fetchAndStore(day.getDate(), day.getMonth(), day.getFullYear());
-     }
-   });
+  soccerDB.open(function(ev) {
+    for (var i = 0; i < 7 ; ++i) {
+      var day = getDate(i)
+      fetchAndStore(day.getDate(), day.getMonth(), day.getFullYear());
+    }
+  });
 }

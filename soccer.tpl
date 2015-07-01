@@ -13,8 +13,9 @@
     <link rel="import" href="/static/components/soccer/soccer-results.html">
     <link rel="import" href="/static/components/soccer/sports-tabs.html">
 
-    <script src="/static/display/main.js"/>
-
+    <script src="/static/display/main.js"> </script>
+    <script src="/static/localstore/soccer_access.js"> </script>
+    <script src="/static/localstore/soccer_db.js"> </script>
 </head>
 
 <body unresolved>
@@ -24,11 +25,14 @@
   </core-toolbar>
 
   <div id="result-elements"> </div>
+  <input id="subscribe" type=button value="Subscribe to push!"/>
+  <a href ="/display/hello.html"> SW CHECK </a>
+  <p id="log"> </p>
 
 <script>
-start();
-createTabs();
-fetchAndDisplay(30, 4, 2015);
+  window.addEventListener('load', function() {
+      start();
+  });
 </script>
 
 
