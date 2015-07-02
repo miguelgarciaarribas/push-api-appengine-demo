@@ -1,8 +1,8 @@
 # A small generator of feeds with todays date
 import sys
-sys.path.append('../')
+sys.path.append('../server')
 
-import soccer_util
+from model import soccer_util
 def main():
     input = open('feed1_template.xml', 'r')
     output = open('feed1_out.xml', 'w')

@@ -1,5 +1,7 @@
 from google.appengine.ext import ndb
+
 import soccer_util
+
 
 class EventDay(ndb.Model):
   day = ndb.IntegerProperty(required=True)

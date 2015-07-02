@@ -1,9 +1,9 @@
 from google.appengine.ext import ndb
 import logging
-from soccer_parser import SoccerProvider, SoccerResult
-from soccer_feed_model import EventDay, SoccerEvent
-import soccer_feed_model
-import soccer_util
+from model import soccer_feed_model
+from model import soccer_util
+from model.soccer_feed_model import EventDay, SoccerEvent
+from parser.soccer_parser import SoccerProvider, SoccerResult
 
 import datetime
 

@@ -1,8 +1,10 @@
 # Main class to send notification results to subscribers
 from google.appengine.api import urlfetch, users
 from google.appengine.ext import ndb
+
 import logging
-from soccer_registration_model import *
+
+from model.soccer_registration_model import PushService, RegistrationType, SoccerRegistration
 
 class SendStats:
     success_count = 0

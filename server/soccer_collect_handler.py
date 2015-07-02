@@ -1,7 +1,8 @@
 from google.appengine.ext import ndb
-from soccer_feed_model import EventDay, SoccerEvent
-import soccer_feed_model
-import soccer_util
+
+from model import soccer_feed_model
+from model.soccer_feed_model import EventDay, SoccerEvent
+from model import soccer_util
 
 import hashlib
 

@@ -1,4 +1,6 @@
-import soccer_util
+import sys
+sys.path.append('../server')
+from model import soccer_util
 
 print "format_key:"
 print soccer_util.format_key()

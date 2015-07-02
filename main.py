@@ -9,11 +9,12 @@ import datetime
 import logging
 import re
 import os
-import soccer_change_sender
-import soccer_collect_handler
-import soccer_feed_handler
-from soccer_parser import SoccerProvider, SoccerResult
-from soccer_registration_model import *
+
+from server import soccer_change_sender
+from server import soccer_collect_handler
+from server import soccer_feed_handler
+from server.parser.soccer_parser import SoccerProvider, SoccerResult
+from server.model import soccer_registration_model
 import urllib
 
 class Message(ndb.Model):
