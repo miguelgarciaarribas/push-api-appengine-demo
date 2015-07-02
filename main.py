@@ -9,13 +9,15 @@ import datetime
 import logging
 import re
 import os
+import urllib
 
 from server import soccer_change_sender
 from server import soccer_collect_handler
 from server import soccer_feed_handler
 from server.parser.soccer_parser import SoccerProvider, SoccerResult
 from server.model import soccer_registration_model
-import urllib
+from server.model.soccer_registration_model import GcmSettings
+
 
 class Message(ndb.Model):
     creation_date = ndb.DateTimeProperty(auto_now_add=True)
@@ -50,7 +52,7 @@ def setup():
         settings.api_key = request.forms.api_key
         settings.put()
         result = 'Updated successfully'
-    return template('setup', result=result,
+    return template('templates/setup', result=result,
                              endpoint=settings.endpoint,
                              sender_id=settings.sender_id,
                              api_key=settings.api_key)
@@ -75,7 +77,7 @@ def feedTest():
         int(homescore)
         int(visitorscore)
     except:
-        return template('feed-test',
+        return template('templates/feed-test',
             competition = request.forms.competition,
             hometeam ="",
             homescore ="",
@@ -118,7 +120,7 @@ def feedSoccer():
 #TODO user_from_get probably obsolete
 @get('/display/soccer')
 def feedSoccerOffline():
-  return template('soccer', user_from_get = 'hello')
+  return template('templates/soccer', user_from_get = 'hello')
 
 
 @get('/manifest.json')
@@ -152,7 +154,7 @@ def chat_admin():
     # Despite the name, this route has no credential checks - don't put anything
     # sensitive here!
     # This template doesn't actually use the sender_id, but we want the warning.
-    return template_with_sender_id('chat_admin')
+    return template_with_sender_id('templates/chat_admin')
 
 def template_with_sender_id(*args, **kwargs):
     settings = GcmSettings.singleton()
