@@ -155,11 +155,22 @@ function start() {
     event.preventDefault();
     subscribeForNotifications();
   });
+  $('#refresh').addEventListener('click', function(event) {
+    event.preventDefault();
+    var day = getDate(0)
+    fetchAndStore(day.getDate(), day.getMonth() + 1, day.getFullYear(), logNewEvent);
+  });
   createTabs();
   soccerDB.open(function(ev) {
     for (var i = 0; i < 7 ; ++i) {
       var day = getDate(i)
-      fetchAndStore(day.getDate(), day.getMonth(), day.getFullYear());
+      fetchAndStore(day.getDate(), day.getMonth(), day.getFullYear(), logNewEvent);
     }
   });
+}
+
+
+
+function logNewEvent(e) {
+  console.log("New Event found " + e.home_team + " vs " + e.visitor_team);
 }

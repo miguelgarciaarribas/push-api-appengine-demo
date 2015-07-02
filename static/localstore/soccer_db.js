@@ -104,7 +104,8 @@ var soccerDB = (function() {
     };
 
     // Create the datastore request.
-    var request = objStore.put(event);
+    // this will fail if the object exits already.
+    var request = objStore.add(event);
 
     // Handle a successful datastore put.
     request.onsuccess = function(e) {

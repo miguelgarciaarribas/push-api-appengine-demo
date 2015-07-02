@@ -1,7 +1,7 @@
 "use strict";
 
-importScripts("/static/localstore/soccer_access.js");
 importScripts("/static/localstore/soccer_db.js");
+importScripts("/static/localstore/soccer_access.js");
 
 var CACHE_NAME = 'my-site-cache-v1';
 var urlsToCache = [
@@ -35,7 +35,7 @@ self.addEventListener('fetch', function(event) {
   var fetchRequest = event.request.clone();
   console.log('got fetch request for ' + fetchRequest.url);
   if (fetchRequest.url == urlsToCache[0]) {
-    event.respondWith(new Response("Hello world from SW LOG6!"));
+    event.respondWith(new Response("Hello world from SW LOG7!"));
   }
   // event.respondWith(
   //   caches.match(event.request)
@@ -50,20 +50,45 @@ self.addEventListener('fetch', function(event) {
   //     }
   //   )
   // );
-  console.log('going to the network');
+  // console.log('going to the network');
   return fetch(event.request);
 });
 
-this.addEventListener('push', function(evt) {
-    console.log('PUSH EVENT RECEIVED');
-    var title = "This is cool";
-    var message = "Notification";
+function notify(title, message) {
     var options = {
         body: message,
         tag: 'soccer',
         icon: '/static/cat.png'
     };
     return self.registration.showNotification(title, options);
+}
+
+function notifyEvent(event) {
+    var title = "Final whistle in " + event.league;
+    var message = event.home_team + " " + event.home_score + "-"
+        + event.visitor_team + " " + event.visitor_score;
+    return notify(title, message);
+}
+
+this.addEventListener('push', function(evt) {
+    console.log('PUSH EVENT RECEIVED');
+    // var title = "This is cool";
+    // var message = "Notification";
+    // var options = {
+    //     body: message,
+    //     tag: 'soccer',
+    //     icon: '/static/cat.png'
+    // };
+    // return self.registration.showNotification(title, options);
+  var day = new Date();
+  try {
+    soccerDB.open(function(ev) {
+      fetchAndStore(day.getDate(), day.getMonth() + 1, day.getFullYear(), notifyEvent);
+    });
+  } catch(err) {
+    notify("Updated Scores available", "Click to check them out");
+  }
+
 });
 
 this.addEventListener('notificationclick', function(evt) {
@@ -84,7 +109,6 @@ this.addEventListener('notificationclick', function(evt) {
     }).then(function(clientList) {
         for (var i = 0; i < clientList.length; i++) {
             var client = clientList[i];
-            // TODO: Intelligently choose which client to focus.
             if (client.focus)
                 return client.focus();
         }

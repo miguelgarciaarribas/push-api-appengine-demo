@@ -26,6 +26,7 @@
 
   <div id="result-elements"> </div>
   <input id="subscribe" type=button value="Subscribe to push!"/>
+  <input id="refresh" type=button value="Refresh IndexDB"/>
   <a href ="/display/hello.html"> SW CHECK </a>
   <p id="log"> </p>
 
