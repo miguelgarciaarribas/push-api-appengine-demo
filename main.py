@@ -16,7 +16,7 @@ from server import soccer_collect_handler
 from server import soccer_feed_handler
 from server.parser.soccer_parser import SoccerProvider, SoccerResult
 from server.model import soccer_registration_model
-from server.model.soccer_registration_model import GcmSettings
+from server.model.soccer_registration_model import *
 
 
 class Message(ndb.Model):
@@ -88,14 +88,14 @@ def feedTest():
         soccer_feed_handler.merge_test_entry(
             competition, hometeam, str(homescore), visitorteam, str(visitorscore),
             soccer_change_sender.notify_changes)
-        return template('feed-test',
+        return template('templates/feed-test',
                         competition = competition,
                         hometeam = hometeam,
                         homescore = str(homescore),
                         visitorteam = visitorteam,
                         visitorscore = str(visitorscore),
                         result = " Test result saved successfully.")
-    return template('feed-test',
+    return template('templates/feed-test',
                     competition = request.forms.competition,
                     hometeam = "",
                     homescore = "",
@@ -179,7 +179,6 @@ def register(type):
         logging.error("Subscription ID:" + str(request.forms.subscription_id))
         if not request.forms.subscription_id:
             abort(400, "Missing subscription_id")
-
         registration = SoccerRegistration.get_or_insert(request.forms.subscription_id,
                                                     type=type,
                                                     team=request.forms.team,

@@ -1,7 +1,6 @@
 # common definitions to sending/registering stuff to GCM/firefox
 from google.appengine.ext import ndb
 from google.appengine.ext.ndb import msgprop
-import json
 from protorpc import messages
 
 DEFAULT_GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send'

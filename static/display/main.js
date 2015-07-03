@@ -84,7 +84,7 @@ function subscribeForPush() {
 }
 
 function doSubscribe(pushManager) {
-  pushManager.subscribe().then(function(ps) {
+  pushManager.subscribe({userVisibleOnly: true}).then(function(ps) {
     console.log(JSON.stringify(ps));
     sendSubscriptionToBackend(ps.endpoint, ps.subscriptionId);
   }, function(err) {
