@@ -6,9 +6,9 @@ from soccer_parser import SoccerProvider, SoccerResult
 
 def main():
   provider = SoccerProvider()
-  # print "Live Feed"
-  # results = provider.fetch_results('http://sports.yahoo.com/soccer//rss.xml')
-  # print results
+  print "Live Feed"
+  results = provider.fetch_results('http://sports.yahoo.com/soccer//rss.xml')
+  print results
 
   print "Test feed 1, itemized"
   results = provider.fetch_results('feed1.xml')
