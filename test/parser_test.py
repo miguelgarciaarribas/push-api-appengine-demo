@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../lib')
 sys.path.append('../server/parser')
-from soccer_parser import SoccerProvider, SoccerResult
+from soccer_parser import SoccerProvider
 
 
 def main():

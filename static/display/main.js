@@ -164,11 +164,10 @@ function start() {
   soccerDB.open(function(ev) {
     for (var i = 0; i < 7 ; ++i) {
       var day = getDate(i)
-      fetchAndStore(day.getDate(), day.getMonth(), day.getFullYear(), logNewEvent);
+      fetchAndStore(day.getDate(), day.getMonth()+ 1, day.getFullYear(), logNewEvent);
     }
   });
 }
-
 
 
 function logNewEvent(e) {

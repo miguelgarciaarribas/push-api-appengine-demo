@@ -1,27 +1,19 @@
 import sys
+import re
+
+from sport_parser import SportProvider, SportResult
 sys.path.append('../../lib')
 import feedparser
-import re
 
 LA_LIGA_SCORES_KEY = "Results and standings from the La Liga matches"
 DATE_SCORES_RE = "(\w+?\s\d+)?\s?(.*)"
 TEAM_RESULT_RE = "\s(\d+?)(\s|$)"
 
 
-class SoccerResult:
-  def __init__(self, date, league, home_team, visitor_team, home_score, visitor_score):
-    self.date = date
-    self.league = league
-    self.home_team = home_team
-    self.visitor_team = visitor_team
-    self.home_score = home_score
-    self.visitor_score = visitor_score
-  def __repr__(self):
-    return "(" + self.league + "/" + self.date + ")" + self.home_team + ":" \
-        + self.home_score + " - " + self.visitor_team + ":" + self.visitor_score
+class SoccerProvider(SportProvider):
+  def __init__(self):
+    SportProvider.__init__(self)
 
-
-class SoccerProvider:
   def fetch_results(self, feed_url):
     world_soccer_feed = feedparser.parse(feed_url)
     return self._collect_results(world_soccer_feed)
@@ -63,8 +55,8 @@ class SoccerProvider:
           visitor_score = team_result
 
         if (home_team and home_score != -1 and visitor_team and visitor_score != -1):
-          soccer_results.append(SoccerResult(date, league, home_team, visitor_team,
-                                             home_score, visitor_score))
+          soccer_results.append(SportResult(date, league, home_team, visitor_team,
+                                            home_score, visitor_score))
           home_team = ""
           visitor_team = ""
           home_score = -1

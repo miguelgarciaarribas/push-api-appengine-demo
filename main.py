@@ -14,7 +14,6 @@ import urllib
 from server import soccer_change_sender
 from server import soccer_collect_handler
 from server import soccer_feed_handler
-from server.parser.soccer_parser import SoccerProvider, SoccerResult
 from server.model import soccer_registration_model
 from server.model.soccer_registration_model import *
 
