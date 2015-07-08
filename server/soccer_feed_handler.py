@@ -49,6 +49,7 @@ def merge_result(result, existing_results):
       for existing_result in existing_results[key]:
         if (existing_result.home_team == result.home_team and
             existing_result.visitor_team == result.visitor_team):
+          # TODO: remove these logs statemetns once sync works
           logging.warning("Same event found")
           #same teams, different score -> update required.
           if (existing_result.home_score != result.home_score or

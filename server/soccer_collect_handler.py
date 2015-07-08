@@ -23,7 +23,6 @@ def display_results(day, month, year):
       "day" : day,
       "month" : month,
       "year" : year
-
       }
     scores.append(result)
   return { "laliga" : scores  }
