@@ -33,8 +33,10 @@ def send(team, type=RegistrationType.SOCCER):
         if gcm_stats.total_count + firefox_stats.total_count == 0:
             print "No devices are registered to receive messages"
         else:
+            total = gcm_stats.total_count + firefox_stats.total_count
+            success = gcm_stats.success_count + firefox_stats.successl_count
             logging.error("Failed to send message to any of the %d registered "
-                       "devices" % failure_total)
+                          "devices" % (total - success))
 
     print "Message sent successfully to %d/%d GCM devices and %d/%d Firefox " \
            "devices%s%s" % (gcm_stats.success_count, gcm_stats.total_count,
